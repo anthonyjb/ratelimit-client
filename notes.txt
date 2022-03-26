@@ -1,0 +1,21 @@
+
+
+For any given state there are multiple things to call:
+
+- enter()
+- exit()
+- input(key) > process input from the user in the form of a key press
+- update(dt) > update the state based on the time that has ellapsed (unlikely to matter much here other than for basic animations)
+- render() > render the state to the screen
+
+
+
+The main UI will consist of 3 windows:
+
+    - Message (height 1, margin-bottom 1)
+    - Viewport (height max -2, margin-bottom 1)
+    - Stats (height 1)
+
+
+There will be other UIs such as the inventory, help screen, game set up screens,
+etc.
