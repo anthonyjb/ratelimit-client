@@ -6,8 +6,22 @@ class GameState:
     various `GameState`s.
     """
 
-    def __init__(self):
-        pass
+    # The ID of the state
+    ID = 'game_state'
+
+    # Possible statuses for a game state
+    READY = 0
+    ACTIVE = 1
+    PAUSED = 2
+
+    def __init__(self, gameStateManager):
+
+        self._gameStateManager = gameStateManager
+        self._status = self.READY
+
+    @property
+    def status(self):
+        return self._status
 
     def enter(self, **kwargs):
         """
@@ -15,10 +29,24 @@ class GameState:
         state.
         """
 
+        assert (
+            self.status == self.READY,
+            'State can only be entered if status is READY.'
+        )
+
+        self._status = self.ACTIVE
+
     def leave(self):
         """
         Called when the game leaves this state.
         """
+
+        assert (
+            self.status == self.ACTIVE or self.status == self.PAUSED,
+            'State can only be left if status is ACTIVE or PAUSED.'
+        )
+
+        self._status = self.READY
 
     def pause(self, new_state_id):
         """
@@ -26,8 +54,22 @@ class GameState:
         another.
         """
 
+        assert (
+            self.status == self.ACTIVE,
+            'State can only be paused if status is ACTIVE.'
+        )
+
+        self._status = self.PAUSED
+
     def resume(self, **kwargs):
         """Called when the game transitiong back to the paused state"""
+
+        assert (
+            self.status == self.PAUSED,
+            'State can only be resumed if status is PAUSED.'
+        )
+
+        self._status = self.ACTIVE
 
     def input(self, char):
         """Handle the given user input for the state"""
