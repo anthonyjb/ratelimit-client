@@ -14,16 +14,24 @@ class GameState:
     ACTIVE = 1
     PAUSED = 2
 
-    def __init__(self, gameStateManager):
+    def __init__(self, game_state_manager):
 
-        self._gameStateManager = gameStateManager
+        self._game_state_manager = game_state_manager
         self._status = self.READY
+
+    @property
+    def game(self):
+        return self.game_state_manager.game
+
+    @property
+    def game_state_manager(self):
+        return self._game_state_manager
 
     @property
     def status(self):
         return self._status
 
-    def enter(self, **kwargs):
+    def enter(self, **kw):
         """
         Called when the game enter the state which then becomes the active
         state.
@@ -61,7 +69,7 @@ class GameState:
 
         self._status = self.PAUSED
 
-    def resume(self, **kwargs):
+    def resume(self, **kw):
         """Called when the game transitiong back to the paused state"""
 
         assert (
@@ -74,7 +82,10 @@ class GameState:
     def input(self, char):
         """Handle the given user input for the state"""
 
-    def update(self, dt, paused):
+        if chr(char) == "q":
+            self.game.quit = True
+
+    def update(self, dt):
         """
         Update the state based on the time ellapsed between now and the
         previous call to update.

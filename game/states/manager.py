@@ -6,10 +6,19 @@ class GameStateManager:
     per game loop iteration.
     """
 
-    # A table of possible states for the game (named)
-    _states = {}
+    # A list of possible states for the game (named)
+    _state_classes = []
 
-    def __init__(self):
+    def __init__(self, game):
+
+        # An instance of the game using the game state manager
+        self._game = game
+
+        # Initialize every registered state
+        self._states = {}
+
+        for state_cls in self._state_classes:
+            self._states[state_cls.ID] = state_cls(self)
 
         # A stack representing the current state of the game with the first
         # item in the stack representing the current state and subsequent
@@ -20,6 +29,10 @@ class GameStateManager:
     def current_state(self):
         if self._state:
             return self._state[0]
+
+    @property
+    def game(self):
+        return self._game
 
     @property
     def size(self):
@@ -48,9 +61,9 @@ class GameStateManager:
         """Push a new scene onto the stack making it the current scene"""
 
         if self.current_state:
-            self.current_state.pause(state._id)
+            self.current_state.pause(state_id)
 
-        self._state.insert(0, self._stats[state_id])
+        self._state.insert(0, self._states[state_id])
         self.current_state.enter(**kw)
 
     def input(self, char):
@@ -61,10 +74,11 @@ class GameStateManager:
         """Update all states currently in the stack"""
         self.current_state.update(dt)
 
-    def register(self, state_cls):
-        """Register a possible state with the game state manager class"""
-        self._states[state_cls.ID] = state_cls(self)
-
     def render(self):
         """Render the current state"""
         self.current_state.render()
+
+    @classmethod
+    def register(cls, state_cls):
+        """Register a possible state with the game state manager class"""
+        cls._state_classes.append(state_cls)
