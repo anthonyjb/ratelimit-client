@@ -16,7 +16,6 @@ class GameStateManager:
 
         # Initialize every registered state
         self._states = {}
-
         for state_cls in self._state_classes:
             self._states[state_cls.ID] = state_cls(self)
 
