@@ -5,4 +5,3 @@ class GameServerClient:
     communicating with the game server.
     """
 
-    async
