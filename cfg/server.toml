@@ -1,6 +1,6 @@
 
 # Connection settings for the game server
 
-host = "127.0.0.1"
+host = "86.23.196.22"
 port = 27015
 password = "password"

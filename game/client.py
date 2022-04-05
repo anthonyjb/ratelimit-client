@@ -21,28 +21,33 @@ class GameServerClient:
         """Connect to the game server"""
 
         # @@ handle sConnectionRefusedError
-        self._reader, self._writer = await asyncio.open_connection(
+        future = asyncio.open_connection(
             settings.server.host,
             settings.server.port
         )
+        try:
+            self._reader, self._writer = await asyncio.wait_for(
+                future,
+                timeout=5
+            )
+        except asyncio.TimeoutError:
+            logging.info('Connect timed out')
 
         # Register
         r = await self.send(
             'handshake',
             {
-                'uid': uuid.getnode(),
+                'node': uuid.getnode(),
                 'password': settings.server.password
             }
         )
-
-        logging.info(f'Connection response')
 
     async def send(self, message_type, message):
         """Send a message to the game server"""
 
         # Build the message to send
         json_data = json.dumps({
-            'id': str(uuid.uuid4()),
+            'uid': str(uuid.uuid4()),
             'type': message_type,
             'message': message
         }).encode()
@@ -56,16 +61,17 @@ class GameServerClient:
         send a message or receive a response.
         """
 
+        self._writer.write(json_data)
+        future = self._reader.read(1024)
+
         try:
-            self._writer.write(json_data)
-            response = await self._reader.read(1024)
+            response = await asyncio.wait_for(future, timeout=5)
             return json.loads(response or '{}')
 
         except (
             asyncio.exceptions.IncompleteReadError,
             asyncio.exceptions.TimeoutError
         ):
-
             # Try again after a short delay
             await asyncio.sleep(1)
 
@@ -79,3 +85,5 @@ class GameServerClient:
             await self.connect()
             response = await self._send(json_data)
             return json.loads(response or '{}')
+
+# Allow server timeout period to be configured
