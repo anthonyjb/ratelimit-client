@@ -1,6 +1,8 @@
 import curses
+import logging
 import time
 
+from game import client
 from game import settings
 from game import states
 
@@ -12,6 +14,13 @@ class GameLoop:
 
     def init(self):
         """Initialize key systems for the game"""
+
+        # Setup a log file for the game
+        logging.basicConfig(
+            filename='logs/game.log',
+            level=logging.DEBUG
+        )
+        logging.getLogger('asyncio').setLevel(logging.WARNING)
 
         # Set up the screen
         self._screen = curses.initscr()
@@ -28,6 +37,10 @@ class GameLoop:
     def screen(self):
         return self._screen
 
+    @property
+    def client(self):
+        return self._client
+
     async def run(self):
 
         try:
@@ -42,6 +55,10 @@ class GameLoop:
             # Set up the game state manager
             self._state_manager = GSM(self)
             self._state_manager.push('in_game')
+
+            # Create a client and attempt to connect to the game server
+            self._client = client.GameServerClient()
+            await self._client.connect()
 
             # Run the game loop
             self.quit = False
@@ -62,6 +79,8 @@ class GameLoop:
                 self._state_manager.update(time.time() - last_loop_time)
                 self._state_manager.render()
 
+                # @@ Peek say once a second
+
                 last_loop_time = time.time()
 
         finally:
@@ -79,6 +98,11 @@ class GameLoop:
 
 # @@
 #
+# - Handle failure to connect to the game server graciously (in the client,
+#   check response and if not a valid connection raise an error we can
+#   capture in-game and deal with (e.g unable to connect to game server please
+#   check your settings).
+# - Handle autoreconnections
 # - Plan how we will join a game through the client.
 # - Create a bootstrap state?
 #
