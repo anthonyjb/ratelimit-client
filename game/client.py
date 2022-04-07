@@ -20,7 +20,6 @@ class GameServerClient:
     async def connect(self):
         """Connect to the game server"""
 
-        # @@ handle sConnectionRefusedError
         future = asyncio.open_connection(
             settings.server.host,
             settings.server.port

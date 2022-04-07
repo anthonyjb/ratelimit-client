@@ -1,5 +1,7 @@
+import asyncio
 import curses
 import logging
+import socket
 import time
 
 from game import client
@@ -14,6 +16,8 @@ class GameLoop:
 
     def init(self):
         """Initialize key systems for the game"""
+
+        self.quit = False
 
         # Setup a log file for the game
         logging.basicConfig(
@@ -30,6 +34,10 @@ class GameLoop:
         self.screen.keypad(True)
 
     @property
+    def client(self):
+        return self._client
+
+    @property
     def main_window(self):
         return self._main_window
 
@@ -37,19 +45,17 @@ class GameLoop:
     def screen(self):
         return self._screen
 
-    @property
-    def client(self):
-        return self._client
-
     async def run(self):
 
         try:
 
             # Set up the main window for the game
             self._main_window = curses.newwin(*self.screen.getmaxyx(), 0, 0)
+            self._main_window.nodelay(True)
 
             # Register the game states
             GSM = states.GameStateManager
+            GSM.register(states.fatal_error.FatalError)
             GSM.register(states.in_game.InGame)
 
             # Set up the game state manager
@@ -58,11 +64,13 @@ class GameLoop:
 
             # Create a client and attempt to connect to the game server
             self._client = client.GameServerClient()
-            await self._client.connect()
+
+            try:
+                await self._client.connect()
+            except socket.gaierror as error:
+                self._state_manager.collapse('fatal_error', error=error)
 
             # Run the game loop
-            self.quit = False
-
             last_loop_time = time.time()
             while not self.quit:
                 char = self.main_window.getch()
@@ -80,8 +88,6 @@ class GameLoop:
                 self._state_manager.render()
 
                 # @@ Peek say once a second
-
-                last_loop_time = time.time()
 
         finally:
             self.cleanup()

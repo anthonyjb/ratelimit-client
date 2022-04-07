@@ -46,7 +46,7 @@ class GameStateManager:
         while self.current_state:
             self._state.pop(0).leave()
 
-        self.push(self._states[state_id], **kw)
+        self.push(state_id, **kw)
 
     def pop(self, **kw):
         """Remove the current scene from the stack"""
