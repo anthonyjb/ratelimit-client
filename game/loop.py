@@ -85,6 +85,7 @@ class GameLoop:
                     self._state_manager.input(char)
 
                 self._state_manager.update(time.time() - last_loop_time)
+                self.screen.clear()
                 self._state_manager.render()
 
                 # @@ Peek say once a second
@@ -108,7 +109,7 @@ class GameLoop:
 #   check response and if not a valid connection raise an error we can
 #   capture in-game and deal with (e.g unable to connect to game server please
 #   check your settings).
-# - Handle autoreconnections
+# - Handle auto-reconnections
 # - Plan how we will join a game through the client.
 # - Create a bootstrap state?
 #

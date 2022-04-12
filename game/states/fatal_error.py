@@ -41,7 +41,6 @@ class FatalError(GameState):
         # Set up the UI
         self.game.main_window.clear()
         self.info_panel = InfoPanel(-4, -2, self.title)
-        self.info_panel.render(self.game.main_window)
 
     def leave(self):
         super().leave()
@@ -57,7 +56,7 @@ class FatalError(GameState):
         super().update(dt)
 
     def render(self):
-        super().render()
+        self.info_panel.render(self.game.main_window)
 
 
 # @@

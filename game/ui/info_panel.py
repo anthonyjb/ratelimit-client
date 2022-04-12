@@ -1,27 +1,23 @@
 import curses
-import curses.panel
 import logging
 
-class InfoPanel:
+from game.ui.component import Component
+
+
+class InfoPanel(Component):
     """
     A UI component that displays pannel of information.
     """
 
     def __init__(self, width, height, title):
+        super().__init__()
 
         # The curses window the panel will be added to
         self._width = width
         self._height = height
         self._title = title
 
-        self._panel = None
-
         # @@ text / buttons
-
-    def __del__(self):
-        if self._panel:
-            del self._panel
-            del self._stack_panel
 
     def render(self, window):
 
@@ -53,8 +49,13 @@ class InfoPanel:
         window.addch(y + height, x + width, curses.ACS_LRCORNER)
         window.refresh()
 
-
-# A base UI component with the concept of children would be good here, also
-# UI components should potentially support update and input not just render
-# and we need a nice way to listen for events from a UI component like
-# selecting a button.
+# @@ Width and height against base UI component should handle width and height
+#    based on distance from the right or bottom of parent window. If there is
+#    no parent then the width / height of the parent will be assumed to be 0.
+# @@ Create a root UI component against the game loop and have resize auto
+#    update the size of this base component.
+# @@ States should add there own root component to this game root component and
+#    disable / hide the component when the games state is paused and remove it
+#    when the game state is left (and viceversa).
+# @@ Finish the info panel example
+#
