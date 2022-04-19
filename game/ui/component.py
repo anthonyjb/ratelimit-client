@@ -28,11 +28,12 @@ class Component:
 
     @property
     def height(self):
-        return self.bottom - self.top
+        return self.parent.height - self.top - self.bottom
 
     @height.setter
     def height(self, value):
-        self.bottom = self.top + value # @@
+        height = self.parent.height
+        self.bottom = height - (height - self.top - value)
 
     @property
     def parent(self):
@@ -40,11 +41,12 @@ class Component:
 
     @property
     def width(self):
-        return self.right - self.left
+        return self.parent.width - self.left - self.right
 
     @height.setter
     def width(self, value):
-        self.right = self.left + value # @@
+        width = self.parent.width
+        self.right = height - (width - self.left - value)
 
     # Methods for managing children
 

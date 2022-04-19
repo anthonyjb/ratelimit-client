@@ -49,9 +49,6 @@ class InfoPanel(Component):
         window.addch(y + height, x + width, curses.ACS_LRCORNER)
         window.refresh()
 
-# @@ Width and height against base UI component should handle width and height
-#    based on distance from the right or bottom of parent window. If there is
-#    no parent then the width / height of the parent will be assumed to be 0.
 # @@ Create a root UI component against the game loop and have resize auto
 #    update the size of this base component.
 # @@ States should add there own root component to this game root component and
