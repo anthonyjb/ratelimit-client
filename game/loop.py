@@ -4,9 +4,10 @@ import logging
 import socket
 import time
 
-from game import client
-from game import settings
+from game.client import GameServerClient
 from game import states
+from game.states.manager import GameStateManager
+from game.ui.component import FixedSizeComponent
 
 
 class GameLoop:
@@ -45,6 +46,10 @@ class GameLoop:
     def screen(self):
         return self._screen
 
+    @property
+    def ui_root(self):
+        return self._ui_root
+
     async def run(self):
 
         try:
@@ -53,17 +58,17 @@ class GameLoop:
             self._main_window = curses.newwin(*self.screen.getmaxyx(), 0, 0)
             self._main_window.nodelay(True)
 
-            # Register the game states
-            GSM = states.GameStateManager
-            GSM.register(states.fatal_error.FatalError)
-            GSM.register(states.in_game.InGame)
+            # Set up a root UI component for the game
+            self._ui_root = FixedSizeComponent()
+            self._ui_root.add_tag('game_root')
+            self.on_resize()
 
             # Set up the game state manager
-            self._state_manager = GSM(self)
+            self._state_manager = GameStateManager(self)
             self._state_manager.push('in_game')
 
             # Create a client and attempt to connect to the game server
-            self._client = client.GameServerClient()
+            self._client = GameServerClient()
 
             try:
                 await self._client.connect()
@@ -79,13 +84,13 @@ class GameLoop:
                     await asyncio.sleep(0.1)
 
                 elif char == curses.KEY_RESIZE:
-                    pass # @@ TODO: Handle the console being resized
+                    self.on_resize()
 
                 else:
                     self._state_manager.input(char)
 
                 self._state_manager.update(time.time() - last_loop_time)
-                self.screen.clear()
+                self.main_window.clear()
                 self._state_manager.render()
 
                 # @@ Peek say once a second
@@ -101,6 +106,13 @@ class GameLoop:
         curses.nocbreak()
         curses.echo()
         curses.endwin()
+
+    def on_resize(self):
+        """Handle the console being resized"""
+
+        max_y, max_x = self.main_window.getmaxyx()
+        self._ui_root.width = max_x
+        self._ui_root.height = max_y
 
 
 # @@

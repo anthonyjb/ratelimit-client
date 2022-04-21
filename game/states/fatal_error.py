@@ -1,6 +1,7 @@
 import logging
 import sys
 
+from game.states.manager import GameStateManager
 from game.states.state import GameState
 from game.ui.info_panel import InfoPanel
 
@@ -38,26 +39,13 @@ class FatalError(GameState):
         # Log the error
         logging.exception('FATAL_ERROR', exc_info=True)
 
-        # Set up the UI
-        self.game.main_window.clear()
-        self.info_panel = InfoPanel(-4, -2, self.title)
+        # Add info panel to the UI displayed
+        info_panel = InfoPanel()
+        self.ui_root.add_child(info_panel)
+        info_panel.extents = [1, -1, -1, 1]
 
-    def leave(self):
-        super().leave()
-        del self.info_panel
 
-    def input(self, char):
-        super().input(char)
-
-        # Quit the game
-        self.game.quit = True
-
-    def update(self, dt):
-        super().update(dt)
-
-    def render(self):
-        self.info_panel.render(self.game.main_window)
-
+GameStateManager.register(FatalError)
 
 # @@
 #
