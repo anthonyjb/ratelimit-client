@@ -40,9 +40,9 @@ class FatalError(GameState):
         logging.exception('FATAL_ERROR', exc_info=True)
 
         # Add info panel to the UI displayed
-        info_panel = InfoPanel()
+        info_panel = InfoPanel('Oh for fudge sake...')
         self.ui_root.add_child(info_panel)
-        info_panel.extents = [1, -1, -1, 1]
+        info_panel.extents = [5, -5, -5, 5]
 
 
 GameStateManager.register(FatalError)

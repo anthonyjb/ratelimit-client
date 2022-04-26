@@ -7,6 +7,7 @@ import time
 from game.client import GameServerClient
 from game import states
 from game.states.manager import GameStateManager
+from game.ui.colors import Colors
 from game.ui.component import FixedSizeComponent
 
 
@@ -32,6 +33,7 @@ class GameLoop:
         curses.noecho()
         curses.cbreak()
         curses.curs_set(False)
+        curses.start_color()
         self.screen.keypad(True)
 
     @property
@@ -53,10 +55,12 @@ class GameLoop:
     async def run(self):
 
         try:
-
             # Set up the main window for the game
             self._main_window = curses.newwin(*self.screen.getmaxyx(), 0, 0)
             self._main_window.nodelay(True)
+
+            # Initialize the game's color palette
+            Colors.init()
 
             # Set up a root UI component for the game
             self._ui_root = FixedSizeComponent()
