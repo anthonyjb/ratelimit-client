@@ -1,6 +1,7 @@
 import curses
 import logging
 
+from game.ui.colors import Colors
 from game.ui.component import Component
 
 
@@ -37,10 +38,8 @@ class InfoPanel(Component):
         title = f' {title} '
         title_left = l + ((w - len(title)) // 2)
 
-        if curses.can_change_color():
-            curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLUE)
-
-        ctx.bkgd(' ', curses.color_pair(1) | curses.A_BOLD)
+        # Colors.pair('dark_purple', 'cornsilk')
+        ctx.bkgd(' ', Colors.pair('cornsilk', 'dark_purple') | curses.A_BOLD)
         ctx.addstr(t, title_left, title)
 
         ctx.refresh()
@@ -50,7 +49,5 @@ class InfoPanel(Component):
 
 # @@
 #
-# - Display title
 # - Display message
-# - Tabbed items in UI to support for tabbing between buttons?
 #
