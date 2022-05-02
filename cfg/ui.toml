@@ -1,0 +1,8 @@
+
+display = [120, 40]
+display_resizable = false
+
+# Color theme
+bg_color = 'dark_purple'
+fg_color = 'cornsilk'
+

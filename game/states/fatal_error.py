@@ -23,7 +23,7 @@ class FatalError(GameState):
         self,
         title='Great fudge! You borked it...',
         summary=(
-            'You can help us figure this out by sending us the error details.'
+            'You can help us figure this out by sending us the error details. '
             'If you are happy to help in this way select to send us the error '
             'below.'
         ),
@@ -40,9 +40,9 @@ class FatalError(GameState):
         logging.exception('FATAL_ERROR', exc_info=True)
 
         # Add info panel to the UI displayed
-        info_panel = InfoPanel('Oh for fudge sake...')
+        info_panel = InfoPanel(title, summary)
         self.ui_root.add_child(info_panel)
-        info_panel.extents = [5, -5, -5, 5]
+        info_panel.extents = [0, -5, 0, 5]
 
 
 GameStateManager.register(FatalError)

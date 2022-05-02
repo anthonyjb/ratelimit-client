@@ -44,7 +44,7 @@ class Component:
     @height.setter
     def height(self, value):
         height = self.parent.height
-        self.bottom = height - (height - self.top - value)
+        self.bottom = -(height - (self.top + value))
 
     @property
     def parent(self):

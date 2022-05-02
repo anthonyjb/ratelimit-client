@@ -1,10 +1,12 @@
 import asyncio
 import curses
 import logging
+import os
 import socket
 import time
 
 from game.client import GameServerClient
+from game.settings import settings
 from game import states
 from game.states.manager import GameStateManager
 from game.ui.colors import Colors
@@ -61,6 +63,10 @@ class GameLoop:
 
             # Initialize the game's color palette
             Colors.init()
+            self._main_window.bkgd(
+                ' ',
+                Colors.pair(settings.ui.fg_color, settings.ui.bg_color)
+            )
 
             # Set up a root UI component for the game
             self._ui_root = FixedSizeComponent()
@@ -114,6 +120,22 @@ class GameLoop:
     def on_resize(self):
         """Handle the console being resized"""
 
+        if not settings.ui.display_resizable:
+
+            # Attempt (or pray) to fix the display size
+
+            # Window
+            os.system(f'mode {settings.ui.display[0]},{settings.ui.display[1]}')
+
+            # MacOS / Linux
+            os.system(
+                f'resize -s {settings.ui.display[1]} {settings.ui.display[0]}'
+            )
+
+            # MacOS / Linux
+            print(f'\x1b[8;{settings.ui.display[1]};{settings.ui.display[0]}t')
+
+        # Update the root UI size to that of the main window
         max_y, max_x = self.main_window.getmaxyx()
         self._ui_root.width = max_x
         self._ui_root.height = max_y
