@@ -10,7 +10,7 @@ from game.settings import settings
 from game import states
 from game.states.manager import GameStateManager
 from game.ui.colors import Colors
-from game.ui.component import FixedSizeComponent
+from game.ui.component import Component
 
 
 class GameLoop:
@@ -69,7 +69,7 @@ class GameLoop:
             )
 
             # Set up a root UI component for the game
-            self._ui_root = FixedSizeComponent()
+            self._ui_root = Component()
             self._ui_root.add_tag('game_root')
             self.on_resize()
 

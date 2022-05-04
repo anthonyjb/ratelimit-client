@@ -1,6 +1,8 @@
 import curses
 import textwrap
 
+
+from game.ui.anchor import Anchor
 from game.ui.component import Component
 
 
@@ -15,23 +17,23 @@ class InfoPanel(Component):
         self.title = title
         self.body = body
 
-        from game.ui.button import Button
-
-        self.button = Button('Test', 't')
-        self.add_child(self.button)
+        self.buttons = Anchor(Anchor.BOTTOM)
+        self.buttons.height = 1
+        self.buttons.width = 0
+        self.add_child(self.buttons)
 
     def update(self, dt):
 
         # Upate the position and size of the panel based on the width of the
         # panel and the body text.
 
-        t, r, b, l = self.rel_extents
-        rows = len(textwrap.wrap(self.body, r - l - 5))
+        parent_height = self.parent.rect[2]
 
-        self.top = round((self.parent.height - (rows + 4)) / 2)
+        t, l, h, w = self.rect
+        rows = len(textwrap.wrap(self.body, w - 5))
+
+        self.top = round((parent_height - (rows + 4)) / 2)
         self.height = rows + 4
-
-        self.button.top = self.height - 1
 
         super().update(dt)
 
@@ -40,22 +42,20 @@ class InfoPanel(Component):
         if not self.visible:
             return
 
-        t, r, b, l = self.rel_extents
-        b -= 1
-        h = b - t
-        w = r - l
+        t, l, h, w = self.rect
+        b = t + h - 1
+        r = l + w - 1
 
         # Draw the border
         ctx.hline(t, l, curses.ACS_HLINE, w)
         ctx.hline(b, l, curses.ACS_HLINE, w)
         ctx.vline(t, l, curses.ACS_VLINE, h)
         ctx.vline(t, r, curses.ACS_VLINE, h)
+
         ctx.addch(t, l, curses.ACS_ULCORNER)
         ctx.addch(t, r, curses.ACS_URCORNER)
         ctx.addch(b, l, curses.ACS_LLCORNER)
-
-        # Insert else the cursor position could be moved out of position
-        ctx.insch(b, r, curses.ACS_LRCORNER)
+        ctx.addch(b, r, curses.ACS_LRCORNER)
 
         # Draw the title
         title = f' {self.title[:w - 3]} '
@@ -74,15 +74,12 @@ class InfoPanel(Component):
         super().render(ctx)
 
 
-# - Finish anchor class
-# - Create a buttons anchor component aligned BOTTOM (CENTER)
-# - Add buttons to the anchor component infor_pannel.buttons.add_child()
-# - Change the size of the anchor class to accommodate the buttons for the
-#   info panel on update.
-#   - Create layout helper to allow me to layout all the buttons horizonally
-#     with a gap between each `layout(components, direction, gap)`.
+# - set default size for buttons (1 height, 16 width - with option to go wider)
+# - Add buttons in fatal error (Sure thing, No thanks)
+# - Layout helper to layout buttons on update
+# - fit_to_content method against component
 # - Finish support for buttons
-#
-# Button(label, key, color_pair, handler)
-# - https://stackoverflow.com/questions/39267464/advanced-mailto-use-in-python
-#   for initializing the email send for the error if they agree
+#   - Email setup https://stackoverflow.com/questions/39267464/advanced-mailto-use-in-python
+#     for initializing the email send for the error if they agree
+# - Add option to make fatal error body configurable and choose to not allow
+#   sending of error in email.

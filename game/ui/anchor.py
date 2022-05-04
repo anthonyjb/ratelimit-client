@@ -17,8 +17,8 @@ class Anchor(Component):
     # direction then the point will be assumed to be centered.
     TOP = 1
     BOTTOM = 2
-    LEFT = 3
-    Right = 8
+    LEFT = 4
+    RIGHT = 8
 
     def __init__(self, point):
         super().__init__()
@@ -27,31 +27,27 @@ class Anchor(Component):
 
     def update(self, dt):
 
+        rect = self.rect
+        parent_rect = self.parent.rect
+
         # Vertical anchor
 
-        if TOP & self.point:
+        if self.TOP & self.point:
+            self.top = 0
 
-            pass
-
-        elif BOTTOM & self.point:
-
-            pass
+        elif self.BOTTOM & self.point:
+            self.top = parent_rect[2] - rect[2]
 
         else: # CENTER
-
-            pass
+            self.top = round((parent_rect[2] - rect[2]) / 2)
 
         # Horizontal anchor
 
-        if LEFT & self.point:
+        if self.LEFT & self.point:
+            self.left = 0
 
-            pass
-
-        elif RIGHT & self.point:
-
-            pass
+        elif self.RIGHT & self.point:
+            self.left = parent_rect[3] - rect[3]
 
         else: # CENTER
-
-            pass
-
+            self.left = round((parent_rect[3] - rect[3]) / 2)

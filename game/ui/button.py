@@ -23,6 +23,9 @@ class Button(Component):
 
     def render(self, ctx):
 
-        t, r, b, l = self.rel_extents
+        t, l, h, w = self.rect
 
-        ctx.addstr(t, l, f'[ {self.label} - ({self.key}) ]', self.color_pair)
+        ctx.addstr(t, l + 1, f' [ {self.label} <Y> ] ', Colors.pair(
+            settings.ui.fg_color,
+            settings.ui.bg_color
+        ) | curses.A_BOLD)

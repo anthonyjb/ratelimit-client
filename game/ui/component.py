@@ -13,10 +13,12 @@ class Component:
 
         self._event_listeners = {}
 
-        self.bottom = 0
+        self.bottom = None
+        self.height = 5
         self.left = 0
+        self.right = None
         self.top = 0
-        self.right = 0
+        self.width = 5
         self.z_index = 0
 
         self.enabled = True
@@ -27,28 +29,30 @@ class Component:
         return self._children
 
     @property
-    def extents(self):
-        return [self.top, self.right, self.bottom, self.left]
-
-    @extents.setter
-    def extents(self, value):
-        self.top = value[0]
-        self.right = value[1]
-        self.bottom = value[2]
-        self.left = value[3]
-
-    @property
-    def height(self):
-        return self.parent.height - self.top + self.bottom
-
-    @height.setter
-    def height(self, value):
-        height = self.parent.height
-        self.bottom = -(height - (self.top + value))
-
-    @property
     def parent(self):
         return self._parent
+
+    @property
+    def rect(self):
+        if not self.parent:
+            return [self.top, self.left, self.height, self.width]
+
+        parent_rect = self.parent.rect
+
+        width = self.width
+        if self.right is not None:
+            width = parent_rect[3] - self.left - self.right
+
+        height = self.height
+        if self.bottom is not None:
+            height = parent_rect[2] - self.top - self.bottom
+
+        return [
+            parent_rect[0] + self.top,
+            parent_rect[1] + self.left,
+            height,
+            width
+        ]
 
     @property
     def root(self):
@@ -60,41 +64,6 @@ class Component:
     @property
     def tags(self):
         return self._tags
-
-    @property
-    def width(self):
-        return self.parent.width - self.left + self.right
-
-    @width.setter
-    def width(self, value):
-        width = self.parent.width
-        self.right = width - (width - self.left - value)
-
-    # Relative properties
-
-    @property
-    def rel_bottom(self):
-        return self.rel_top + self.height
-
-    @property
-    def rel_extents(self):
-        return [self.rel_top, self.rel_right, self.rel_bottom, self.rel_left]
-
-    @property
-    def rel_left(self):
-        if self.parent:
-            return self.parent.rel_left + self.left
-        return self.left
-
-    @property
-    def rel_right(self):
-        return self.rel_left + self.width
-
-    @property
-    def rel_top(self):
-        if self.parent:
-            return self.parent.rel_top + self.top
-        return self.top
 
     # Methods for managing children
 
@@ -210,31 +179,3 @@ class Component:
         if self.enabled:
             for child in self.children:
                 child.update(dt)
-
-
-class FixedSizeComponent(Component):
-    """
-    A base UI component with a fixed width and height.
-    """
-
-    def __init__(self):
-        super().__init__()
-
-        self._width = 0
-        self._height = 0
-
-    @property
-    def height(self):
-        return self._height
-
-    @height.setter
-    def height(self, value):
-        self._height = value
-
-    @property
-    def width(self):
-        return self._width
-
-    @width.setter
-    def width(self, value):
-        self._width = value

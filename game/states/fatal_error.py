@@ -3,6 +3,7 @@ import sys
 
 from game.states.manager import GameStateManager
 from game.states.state import GameState
+from game.ui.button import Button
 from game.ui.info_panel import InfoPanel
 
 
@@ -42,19 +43,12 @@ class FatalError(GameState):
         # Add info panel to the UI displayed
         info_panel = InfoPanel(title, summary)
         self.ui_root.add_child(info_panel)
-        info_panel.extents = [0, -5, 0, 5]
+        info_panel.left = 5
+        info_panel.right = 5
 
+        sure_button = Button('Sure thing!', 'y')
+        no_button = Button('No thanks', 'n')
+        info_panel.buttons.add_child(sure_button)
+        #info_panel.buttons.add_child(no_button)
 
 GameStateManager.register(FatalError)
-
-# @@
-#
-# - Create an information screen ui component that supports
-    # - Title
-    # - Text
-    # - @@ Buttons
-# - Create a button ui component that supports
-    # - label
-    # - on_select
-
-# Should we render this UI per cycle or only once

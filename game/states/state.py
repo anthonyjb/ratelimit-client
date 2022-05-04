@@ -69,6 +69,8 @@ class GameState(metaclass=RegisterGameState):
         # Add root UI component
         self._ui_root = Component()
         self._ui_root.add_tag('state_root')
+        self._ui_root.bottom = 0
+        self._ui_root.right = 0
         self.game.ui_root.add_child(self._ui_root)
 
         # Set the state to active
