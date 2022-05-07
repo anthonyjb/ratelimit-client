@@ -1,3 +1,6 @@
+from copy import copy
+import sys
+
 
 class Component:
     """
@@ -72,6 +75,45 @@ class Component:
         self._children.append(child)
         child._parent = self
 
+    def fit_content(self):
+        """
+        Set the width and the height of the component so that it matches the
+        extents of its children.
+        """
+
+        min_x = sys.maxsize
+        min_y = sys.maxsize
+        max_x = 0
+        max_y = 0
+
+        for child in self._children:
+
+            rect = child.rect
+
+            min_x = min(rect[1], min_x)
+            min_y = min(rect[0], min_y)
+            max_x = max(rect[1] + rect[3], max_x)
+            max_y = max(rect[0] + rect[2], max_y)
+
+        self.width = max(0, max_x - min_x)
+        self.height = max(0, max_y - min_y)
+
+    def layout(self, direction, gap=0):
+        """
+        Layout the children of the component in the specified direction
+        (column|row) with given gap between each.
+        """
+
+        p = 0
+        for child in self._children:
+            if direction == 'column':
+                child.top = p
+                p += child.height + gap
+
+            else:
+                child.left = p
+                p += child.width + gap
+
     def remove_child(self, child):
         """Remove a child from the component"""
         self._children.remove(child)
@@ -136,13 +178,13 @@ class Component:
     def dispatch_event(self, event):
         """Dispatch the given event against this component"""
 
-        event = event.copy()
+        event = copy(event)
         event._origin_component = event.origin_component or self
         event._component = self
 
-        if event.cancelled:
+        if not event.cancelled:
 
-            for func in self._event_listeners.get(event_name, []):
+            for func in self._event_listeners.get(event.event_name, []):
                 func(event)
 
             if not event.propagation_stopped and self.parent:

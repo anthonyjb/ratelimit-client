@@ -117,7 +117,10 @@ class GameState(metaclass=RegisterGameState):
     def input(self, char):
         """Handle the given user input for the state"""
 
-        if chr(char) == "q":
+        if chr(char) == 'q':
+
+            # @@ This should switch us to a confirmation screen
+
             self.game.quit = True
 
         if self.ui_root:

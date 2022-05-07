@@ -1,7 +1,6 @@
 import curses
 import textwrap
 
-
 from game.ui.anchor import Anchor
 from game.ui.component import Component
 
@@ -17,13 +16,10 @@ class InfoPanel(Component):
         self.title = title
         self.body = body
 
-        self.buttons = Anchor(Anchor.BOTTOM)
-        self.buttons.height = 1
-        self.buttons.width = 0
+        self.buttons = Anchor(Anchor.BOTTOM | Anchor.RIGHT, (0, 4))
         self.add_child(self.buttons)
 
     def update(self, dt):
-
         # Upate the position and size of the panel based on the width of the
         # panel and the body text.
 
@@ -74,12 +70,11 @@ class InfoPanel(Component):
         super().render(ctx)
 
 
-# - set default size for buttons (1 height, 16 width - with option to go wider)
-# - Add buttons in fatal error (Sure thing, No thanks)
-# - Layout helper to layout buttons on update
-# - fit_to_content method against component
-# - Finish support for buttons
-#   - Email setup https://stackoverflow.com/questions/39267464/advanced-mailto-use-in-python
-#     for initializing the email send for the error if they agree
 # - Add option to make fatal error body configurable and choose to not allow
 #   sending of error in email.
+
+# ? WTF
+#
+# - why does calling fit_content in the parent to udpate a child send it all
+#   over the place (buttons in info_panel).
+#

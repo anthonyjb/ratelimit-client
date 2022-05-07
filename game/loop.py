@@ -4,6 +4,7 @@ import logging
 import os
 import socket
 import time
+import traceback
 
 from game.client import GameServerClient
 from game.settings import settings
@@ -83,7 +84,10 @@ class GameLoop:
             try:
                 await self._client.connect()
             except socket.gaierror as error:
-                self._state_manager.collapse('fatal_error', error=error)
+                self._state_manager.collapse(
+                    'fatal_error',
+                    error=traceback.format_exc()
+                )
 
             # Run the game loop
             last_loop_time = time.time()

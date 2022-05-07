@@ -5,4 +5,5 @@ display_resizable = false
 # Color theme
 bg_color = 'dark_purple'
 fg_color = 'cornsilk'
+primary_button_color = 'rhythm'
 

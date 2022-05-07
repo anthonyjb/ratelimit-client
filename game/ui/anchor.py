@@ -20,10 +20,15 @@ class Anchor(Component):
     LEFT = 4
     RIGHT = 8
 
-    def __init__(self, point):
+    def __init__(self, point, offset=(0, 0)):
         super().__init__()
 
+        # The point to anchor to based on a combination of the bitwise flags
+        # defined for the class (TOP, BOTTOM, LEFT, RIGHT).
         self.point = point
+
+        # The offset as a pair of coordinates from the anchor point (top, left)
+        self.offset = offset
 
     def update(self, dt):
 
@@ -33,21 +38,21 @@ class Anchor(Component):
         # Vertical anchor
 
         if self.TOP & self.point:
-            self.top = 0
+            self.top = self.offset[0]
 
         elif self.BOTTOM & self.point:
-            self.top = parent_rect[2] - rect[2]
+            self.top = parent_rect[2] - rect[2] - self.offset[0]
 
         else: # CENTER
-            self.top = round((parent_rect[2] - rect[2]) / 2)
+            self.top = round((parent_rect[2] - rect[2]) / 2) + 1
 
         # Horizontal anchor
 
         if self.LEFT & self.point:
-            self.left = 0
+            self.left = self.offset[1]
 
         elif self.RIGHT & self.point:
-            self.left = parent_rect[3] - rect[3]
+            self.left = parent_rect[3] - rect[3] - self.offset[1]
 
         else: # CENTER
-            self.left = round((parent_rect[3] - rect[3]) / 2)
+            self.left = round((parent_rect[3] - rect[3]) / 2) + 1
