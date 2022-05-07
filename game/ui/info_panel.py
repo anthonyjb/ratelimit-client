@@ -69,12 +69,3 @@ class InfoPanel(Component):
 
         super().render(ctx)
 
-
-# - Add option to make fatal error body configurable and choose to not allow
-#   sending of error in email.
-
-# ? WTF
-#
-# - why does calling fit_content in the parent to udpate a child send it all
-#   over the place (buttons in info_panel).
-#

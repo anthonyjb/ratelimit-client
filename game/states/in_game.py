@@ -1,3 +1,5 @@
+import curses
+
 from game.states.state import GameState
 
 
@@ -27,4 +29,7 @@ class InGame(GameState):
         super().update(dt)
 
     def render(self):
+
+        self.game.main_window.addstr(1, 1, 'In-game state', curses.A_BOLD)
+
         super().render()
