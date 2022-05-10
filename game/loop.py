@@ -83,10 +83,19 @@ class GameLoop:
 
             try:
                 await self._client.connect()
-            except socket.gaierror as error:
+            except (ConnectionRefusedError, socket.gaierror) as error:
                 self._state_manager.collapse(
                     'fatal_error',
-                    error=traceback.format_exc()
+                    title='Server is hiding...',
+                    summary=(
+                        'Unable to connect to the game server, if you are '
+                        'running it locally check it\'s erm... running, if '
+                        'you are connecting to a remote host blame them '
+                        'continously until you spot your typo in the '
+                        'settings file at which point exclaim it is now '
+                        'miraculously working.'
+                    ),
+                    allow_send_error=False
                 )
 
             # Run the game loop
