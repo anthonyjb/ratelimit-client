@@ -126,9 +126,9 @@ class GameLoop:
                 self._state_manager.render()
 
                 # @@ Peek say once a second
-                if self._non_blocking_client.connected:
-                    if not peek_task or peek_task.done():
-                        peek_task = asyncio.ensure_future(self.peek())
+                # if self._non_blocking_client.connected:
+                #     if not peek_task or peek_task.done():
+                #         peek_task = asyncio.ensure_future(self.peek())
 
         finally:
             self.cleanup()

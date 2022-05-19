@@ -1,3 +1,4 @@
+import curses
 
 from game.settings import settings
 from game.ui.colors import Colors
@@ -10,7 +11,7 @@ class Overworld:
 
     def __init__(self, size):
         self._size = size
-        self._tiles = [OverworldTile() for i in range(0, size[0] * size[1])]
+        self._tiles = [OverworldTile() for i in range(size[0] * size[1])]
 
     @property
     def size(self):
@@ -24,10 +25,13 @@ class Overworld:
 
     def render(self, ctx):
         """Render the overworld"""
-        for y in size[0]:
-            for x in size[1]:
+
+        size = self.size
+
+        for y in range(size[0]):
+            for x in range(size[1]):
                 tile_index = y * size[1] + x
-                self._tiles[tile_index].render(ctx, y, c)
+                self._tiles[tile_index].render(ctx, y, x)
 
     @classmethod
     def from_json_type(self, json_type):
@@ -39,8 +43,8 @@ class Overworld:
         tiles = json_type['tiles']
 
         overworld = Overworld(size)
-        for y in size[0]:
-            for x in size[1]:
+        for y in range(size[0]):
+            for x in range(size[1]):
 
                 tile_index = y * size[1] + x
                 terrain, landmark = tiles[tile_index]
@@ -51,6 +55,8 @@ class Overworld:
 
                 if landmark > -1:
                     tile.landmark = landmarks[landmark]
+
+        return overworld
 
 
 class OverworldTile:
@@ -75,7 +81,7 @@ class OverworldTile:
 
         if self.landmark:
             return Colors.pair(
-                settings.overworld.landmarks[self.landmkar][1],
+                settings.overworld.landmarks[self.landmark][1],
                 settings.ui.bg_color
             )
 
