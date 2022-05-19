@@ -1,4 +1,5 @@
 import curses
+import logging
 
 from game.states.state import GameState
 
@@ -15,12 +16,12 @@ class InGame(GameState):
     def enter(self, **kw):
         super().enter(**kw)
 
-        print('entered')
+        # world = self.game.client.send('view_world')
+
+        # logging.info(world)
 
     def leave(self):
         super().leave()
-
-        print('left')
 
     def input(self, char):
         super().input(char)

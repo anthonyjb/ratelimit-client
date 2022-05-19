@@ -7,15 +7,21 @@ import uuid
 from game.settings import settings
 
 
-class GameServerClient:
+class NonBlockingClient:
     """
-    The game server client provides an interface for connect to and
-    communicating with the game server.
+    The `NonBlockingClient` provides an interface for connecting to and
+    communicating with the game server that does not block the game loop when
+    making a request to wait for a response.
     """
 
     def __init__(self):
         self._reader = None
         self._writer = None
+        self._connected = False
+
+    @property
+    def connected(self):
+        return self._connected
 
     async def connect(self):
         """Connect to the game server"""
@@ -41,7 +47,9 @@ class GameServerClient:
             }
         )
 
-    async def send(self, message_type, message):
+        self._connected = True
+
+    async def send(self, message_type, message=None):
         """Send a message to the game server"""
 
         # Build the message to send
@@ -71,6 +79,8 @@ class GameServerClient:
             asyncio.exceptions.IncompleteReadError,
             asyncio.exceptions.TimeoutError
         ):
+            return
+
             # Try again after a short delay
             await asyncio.sleep(1)
 
@@ -78,6 +88,7 @@ class GameServerClient:
             return json.loads(response or '{}')
 
         except asyncio.exceptions.InvalidStateError:
+            return
 
             # Attempt to reconnect and send again after a short delay
             await asyncio.sleep(1)

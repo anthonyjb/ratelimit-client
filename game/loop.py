@@ -6,7 +6,8 @@ import socket
 import time
 import traceback
 
-from game.client import GameServerClient
+from game.clients.blocking import BlockingClient
+from game.clients.non_blocking import NonBlockingClient
 from game.settings import settings
 from game import states
 from game.states.manager import GameStateManager
@@ -41,7 +42,7 @@ class GameLoop:
 
     @property
     def client(self):
-        return self._client
+        return self._blocking_client
 
     @property
     def main_window(self):
@@ -76,14 +77,21 @@ class GameLoop:
 
             # Set up the game state manager
             self._state_manager = GameStateManager(self)
-            self._state_manager.push('in_game')
 
             # Create a client and attempt to connect to the game server
-            self._client = GameServerClient()
+            self._blocking_client = BlockingClient()
+            self._non_blocking_client = NonBlockingClient()
+
+            c = None
 
             try:
-                await self._client.connect()
-            except (ConnectionRefusedError, socket.gaierror) as error:
+                self._blocking_client.connect()
+                await self._non_blocking_client.connect()
+
+                # Set the initial game state
+                self._state_manager.push('in_game')
+
+            except (Exception, ConnectionRefusedError, socket.gaierror) as error:
                 self._state_manager.collapse(
                     'fatal_error',
                     title='Server is hiding...',
@@ -99,6 +107,7 @@ class GameLoop:
                 )
 
             # Run the game loop
+            peek_task = None
             last_loop_time = time.time()
             while not self.quit:
                 char = self.main_window.getch()
@@ -117,9 +126,17 @@ class GameLoop:
                 self._state_manager.render()
 
                 # @@ Peek say once a second
+                if self._non_blocking_client.connected:
+                    if not peek_task or peek_task.done():
+                        peek_task = asyncio.ensure_future(self.peek())
 
         finally:
             self.cleanup()
+
+    async def peek(self):
+        data = await self._non_blocking_client.send('peek')
+
+        # @@ IMPLEMENT
 
     def cleanup(self):
         """Clean up before exiting the game"""
@@ -137,16 +154,18 @@ class GameLoop:
 
             # Attempt (or pray) to fix the display size
 
-            # Window
-            os.system(f'mode {settings.ui.display[0]},{settings.ui.display[1]}')
+            if os.name == 'nt':
 
-            # MacOS / Linux
-            os.system(
-                f'resize -s {settings.ui.display[1]} {settings.ui.display[0]}'
-            )
+                # Window
+                os.system(
+                    f'mode {settings.ui.display[0]},{settings.ui.display[1]}'
+                )
+            else:
 
-            # MacOS / Linux
-            print(f'\x1b[8;{settings.ui.display[1]};{settings.ui.display[0]}t')
+                # MacOS / Linux
+                print(
+                    f'\x1b[8;{settings.ui.display[1]};{settings.ui.display[0]}t'
+                )
 
         # Update the root UI size to that of the main window
         max_y, max_x = self.main_window.getmaxyx()
@@ -163,4 +182,24 @@ class GameLoop:
 # - Handle auto-reconnections
 # - Plan how we will join a game through the client.
 # - Create a bootstrap state?
+#
+
+# @@
+# - Establish how let both ends know the length of content we are sending
+#   about to receive).
+
+# - Create a sync client along with the async client
+# - We will have async and sync clients
+# - read until new line, parse content-length: number, read content length data
+
+# @@ PEEK (asyncio)
+#   - Request no more than once a second
+#   - Returns the current frame and which players turn it is, response is not
+#     waited for and the task will update the current frame / turn info against
+#     the game loop (potentially triggering a request for frames to playback).
+#   - Asyncio so as to not delay current loop while IO between server and client
+
+# @@ ALL OTHER COMMANDS (syncio)
+#   - Request on demand
+#   - Wait for response
 #
