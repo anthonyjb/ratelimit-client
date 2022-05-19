@@ -2,6 +2,7 @@
 import asyncio
 import json
 import logging
+import struct
 import uuid
 
 from game.settings import settings
@@ -62,38 +63,42 @@ class NonBlockingClient:
         return await self._send(json_data)
 
     async def _send(self, json_data):
-        """
-        Send a message to the game server (private function that can
-        recursively call itself in an attempt to deal with failed attempts to
-        send a message or receive a response.
-        """
-
+        self._writer.write(struct.pack('>I', len(json_data) * 4))
         self._writer.write(json_data)
-        future = self._reader.read(1024)
 
-        try:
-            response = await asyncio.wait_for(future, timeout=5)
-            return json.loads(response or '{}')
+        response_len = struct.unpack('>I', await self._reader.read(4))[0]
+        remaining = response_len
 
-        except (
-            asyncio.exceptions.IncompleteReadError,
-            asyncio.exceptions.TimeoutError
-        ):
-            return
+        response = b''
+        while remaining > 0:
+            response += await self._reader.read(remaining)
+            remaining = response_len - len(response) * 4
 
-            # Try again after a short delay
-            await asyncio.sleep(1)
+        return json.loads(response.decode('utf8') or '{}')
 
-            response = await self._send(json_data)
-            return json.loads(response or '{}')
+        # try:
+        #     response = await asyncio.wait_for(future, timeout=5)
+        #     return json.loads(response or '{}')
 
-        except asyncio.exceptions.InvalidStateError:
-            return
+        # except (
+        #     asyncio.exceptions.IncompleteReadError,
+        #     asyncio.exceptions.TimeoutError
+        # ):
+        #     return
 
-            # Attempt to reconnect and send again after a short delay
-            await asyncio.sleep(1)
-            await self.connect()
-            response = await self._send(json_data)
-            return json.loads(response or '{}')
+        #     # Try again after a short delay
+        #     await asyncio.sleep(1)
+
+        #     response = await self._send(json_data)
+        #     return json.loads(response or '{}')
+
+        # except asyncio.exceptions.InvalidStateError:
+        #     return
+
+        #     # Attempt to reconnect and send again after a short delay
+        #     await asyncio.sleep(1)
+        #     await self.connect()
+        #     response = await self._send(json_data)
+        #     return json.loads(response or '{}')
 
 # Allow server timeout period to be configured

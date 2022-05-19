@@ -1,6 +1,7 @@
 import curses
 import logging
 
+from game.entities.overworld import Overworld
 from game.states.state import GameState
 
 
@@ -16,9 +17,10 @@ class InGame(GameState):
     def enter(self, **kw):
         super().enter(**kw)
 
-        # world = self.game.client.send('view_world')
-
-        # logging.info(world)
+        # Load the game world
+        self.overworld = Overworld.from_json_type(
+            self.game.client.send('view_world')
+        )
 
     def leave(self):
         super().leave()
@@ -31,6 +33,23 @@ class InGame(GameState):
 
     def render(self):
 
-        self.game.main_window.addstr(1, 1, 'In-game state', curses.A_BOLD)
+        self.overworld.render(self.game.main_window)
 
         super().render()
+
+
+# Overworld
+#
+# - size (w, h)
+# - terrains [strings, woods, plain, hills, mountains, mountain peaks desert, water]
+# - landmarks [string, settlement, cave]
+# - tiles []
+#     - terrain index
+#     - landmark index
+
+# {
+#     'landmarks': ['cave', 'settlement'],
+#     'size': [40, 20],
+#     'terrains': ['hills', 'moutain peaks', 'mountains', 'plains', 'water', 'woods'],
+#     'tiles': [[5, -1], [3, -1], [3, 1], ...]
+# }

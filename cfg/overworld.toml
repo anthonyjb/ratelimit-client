@@ -1,0 +1,14 @@
+
+# Landmarks
+[landmarks]
+cave = ['o', 'cornsilk']
+settlement = ['^', 'cornsilk']
+
+# Terrains
+[terrains]
+hills = ['~', 'dark_purple']
+moutain_peaks = ['^', 'dark_purple']
+mountains = ['^', 'dark_purple']
+plains = ['"', 'dark_purple']
+water = ['=', 'dark_purple']
+woods = ['&', 'dark_purple']

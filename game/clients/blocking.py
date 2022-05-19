@@ -2,6 +2,7 @@
 import json
 import logging
 import socket
+import struct
 import uuid
 
 from game.settings import settings
@@ -46,17 +47,20 @@ class BlockingClient:
             'uid': str(uuid.uuid4()),
             'type': message_type,
             'message': message
-        }).encode()
+        }).encode('utf8')
 
         return self._send(json_data)
 
     def _send(self, json_data):
-        """
-        Send a message to the game server (private function that can
-        recursively call itself in an attempt to deal with failed attempts to
-        send a message or receive a response.
-        """
-
+        self._socket.sendall(struct.pack('>I', len(json_data) * 4))
         self._socket.sendall(json_data)
-        response = self._socket.recv(1024)
-        return json.loads(response or '{}')
+
+        response_len = struct.unpack('>I', self._socket.recv(4))[0]
+        remaining = response_len
+
+        response = b''
+        while remaining > 0:
+            response += self._socket.recv(remaining)
+            remaining = response_len - len(response) * 4
+
+        return json.loads(response.decode('utf8') or '{}')
