@@ -129,17 +129,15 @@ class GameLoop:
                 elif char == curses.KEY_RESIZE:
                     self.on_resize()
 
-                elif char == settings.ui.console.toggle_char:
-                    self.ui_console.visible = not self.ui_console.visible
-
                 else:
+                    self.ui_console.input(char)
                     self._state_manager.input(char)
 
                 dt = time.time() - last_loop_time
                 self._state_manager.update(dt)
                 self._ui_console.update(dt)
 
-                self.main_window.clear()
+                self.main_window.erase()
                 self._state_manager.render()
                 self._ui_console.render(self.main_window)
 

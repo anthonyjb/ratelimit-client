@@ -20,13 +20,22 @@ class Console(Component):
     def __init__(self):
         super().__init__()
 
-        self.right = 0
+        self.enabled = False
         self.height = 6
+        self.right = 0
         self.visible = False
         self.z_index = 1000
 
         self._buffer = []
         self._offset = 0
+
+    @property
+    def can_scroll_down(self):
+        return self._offset < len(self._buffer) - self.height
+
+    @property
+    def can_scroll_up(self):
+        return self._offset > 0
 
     def clear(self):
         """Clear the console"""
@@ -35,6 +44,33 @@ class Console(Component):
     def log(self, name, value):
         """Log a named value to the console"""
         self._buffer.append((name, value))
+
+    def scroll_down(self):
+        """Scroll the console display down"""
+        self._offset = min(len(self._buffer) - self.height, self._offset + 1)
+
+    def scroll_up(self):
+        """Scroll the console display up"""
+        self._offset = max(0, self._offset - 1)
+
+    # Lifecycle methods
+
+    def input(self, char):
+
+        if char == settings.ui.console.toggle_char:
+
+            # Toggle the console
+            self.enabled = not self.enabled
+            self.visible = self.enabled
+
+        if self.enabled:
+
+            # Support scoll up / down
+            if char == settings.ui.console.scroll_down_char:
+                self.scroll_down()
+
+            elif char == settings.ui.console.scroll_up_char:
+                self.scroll_up()
 
     def update(self, dt):
         # Update t`he position of the console so that it sticks to the bottom
@@ -65,10 +101,17 @@ class Console(Component):
                 settings.ui.console.bg_color
             )
         )
-        win.clrtobot()
+        win.erase()
 
         # Display the buffer
         for i, pair in enumerate(self._buffer[-self.height:]):
             win.insstr(i, 0, f'{pair[0]}: {pair[1]}')
 
         super().render(ctx)
+
+
+# @@
+#
+# - support scrolling
+# - handle line return
+#

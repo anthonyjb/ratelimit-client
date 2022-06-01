@@ -10,4 +10,6 @@ primary_button_color = 'rhythm'
 [console]
     bg_color = 'dark_lava'
     fg_color = 'isabeline'
+    scroll_up_down = 34 # page down
+    scroll_up_char = 33 # page up
     toggle_char = 96 # `
