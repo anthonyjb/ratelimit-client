@@ -35,21 +35,6 @@ class InGame(GameState):
 
         self.overworld.render(self.game.main_window)
 
+        self.game.ui_console.log('width', self.overworld.size)
+
         super().render()
-
-
-# Overworld
-#
-# - size (w, h)
-# - terrains [strings, woods, plain, hills, mountains, mountain peaks desert, water]
-# - landmarks [string, settlement, cave]
-# - tiles []
-#     - terrain index
-#     - landmark index
-
-# {
-#     'landmarks': ['cave', 'settlement'],
-#     'size': [40, 20],
-#     'terrains': ['hills', 'moutain peaks', 'mountains', 'plains', 'water', 'woods'],
-#     'tiles': [[5, -1], [3, -1], [3, 1], ...]
-# }

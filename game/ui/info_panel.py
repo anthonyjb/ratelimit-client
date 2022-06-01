@@ -7,7 +7,7 @@ from game.ui.component import Component
 
 class InfoPanel(Component):
     """
-    A UI component that displays pannel of information.
+    A UI component that displays panel of information.
     """
 
     def __init__(self, title, body):
@@ -34,6 +34,8 @@ class InfoPanel(Component):
         super().update(dt)
 
     def render(self, ctx):
+
+        ctx.clear()
 
         if not self.visible:
             return

@@ -13,6 +13,7 @@ from game import states
 from game.states.manager import GameStateManager
 from game.ui.colors import Colors
 from game.ui.component import Component
+from game.ui.console import Console
 
 
 class GameLoop:
@@ -53,6 +54,10 @@ class GameLoop:
         return self._screen
 
     @property
+    def ui_console(self):
+        return self._ui_console
+
+    @property
     def ui_root(self):
         return self._ui_root
 
@@ -74,6 +79,10 @@ class GameLoop:
             self._ui_root = Component()
             self._ui_root.add_tag('game_root')
             self.on_resize()
+
+            # Set up development console UI component
+            self._ui_console = Console()
+            self._ui_root.add_child(self._ui_console)
 
             # Set up the game state manager
             self._state_manager = GameStateManager(self)
@@ -110,6 +119,8 @@ class GameLoop:
             peek_task = None
             last_loop_time = time.time()
             while not self.quit:
+                self._ui_console.clear()
+
                 char = self.main_window.getch()
 
                 if char == curses.ERR:
@@ -118,12 +129,20 @@ class GameLoop:
                 elif char == curses.KEY_RESIZE:
                     self.on_resize()
 
+                elif chr(char) == '`':
+                    self.ui_console.visible = not self.ui_console.visible
+
                 else:
                     self._state_manager.input(char)
 
-                self._state_manager.update(time.time() - last_loop_time)
+                dt = time.time() - last_loop_time
+                self._state_manager.update(dt)
+                self._ui_console.update(dt)
+
                 self.main_window.clear()
                 self._state_manager.render()
+                self._ui_console.render(self.main_window)
+
 
                 # @@ Peek say once a second
                 # if self._non_blocking_client.connected:
