@@ -2,7 +2,9 @@ import curses
 import logging
 import textwrap
 
+from game.settings import settings
 from game.ui.anchor import Anchor
+from game.ui.colors import Colors
 from game.ui.component import Component
 
 
@@ -24,6 +26,7 @@ class Console(Component):
         self.z_index = 1000
 
         self._buffer = []
+        self._offset = 0
 
     def clear(self):
         """Clear the console"""
@@ -34,7 +37,7 @@ class Console(Component):
         self._buffer.append((name, value))
 
     def update(self, dt):
-        # Update the position of the console so that it sticks to the bottom
+        # Update t`he position of the console so that it sticks to the bottom
         # of the window.
 
         parent_rect = self.parent.rect
@@ -52,15 +55,20 @@ class Console(Component):
         b = t + h - 1
         r = l + w - 1
 
-        # Clear console area
-        ctx.move(t, l)
-        ctx.clrtobot()
+        win = ctx.subwin(t, 0)
 
-        # Draw the border
-        ctx.hline(t - 1, l, curses.ACS_HLINE, w)
+        # Clear console area
+        win.bkgd(
+            ' ',
+            Colors.pair(
+                settings.ui.console.fg_color,
+                settings.ui.console.bg_color
+            )
+        )
+        win.clrtobot()
 
         # Display the buffer
         for i, pair in enumerate(self._buffer[-self.height:]):
-            ctx.insstr(t + i, 0, f'{pair[0]}: {pair[1]}')
+            win.insstr(i, 0, f'{pair[0]}: {pair[1]}')
 
         super().render(ctx)

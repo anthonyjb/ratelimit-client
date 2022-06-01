@@ -7,3 +7,7 @@ bg_color = 'dark_purple'
 fg_color = 'cornsilk'
 primary_button_color = 'rhythm'
 
+[console]
+    bg_color = 'dark_lava'
+    fg_color = 'isabeline'
+    toggle_char = 96 # `

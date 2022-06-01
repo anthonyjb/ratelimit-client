@@ -13,7 +13,14 @@ class ReadOnlyDict(dict):
     def __getattr__(self, attr):
         if attr.startswith('__'):
             raise AttributeError
-        return self.get(attr, None)
+
+        value = self.get(attr, None)
+
+        if type(value) is dict:
+            value = ReadOnlyDict(value)
+            self.__dict__[attr] = value
+
+        return value
 
     def __setattr__(self, attr, value):
         raise TypeError('Settings cannot be set.')

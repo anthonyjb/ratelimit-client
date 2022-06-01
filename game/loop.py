@@ -129,7 +129,7 @@ class GameLoop:
                 elif char == curses.KEY_RESIZE:
                     self.on_resize()
 
-                elif chr(char) == '`':
+                elif char == settings.ui.console.toggle_char:
                     self.ui_console.visible = not self.ui_console.visible
 
                 else:
@@ -142,7 +142,6 @@ class GameLoop:
                 self.main_window.clear()
                 self._state_manager.render()
                 self._ui_console.render(self.main_window)
-
 
                 # @@ Peek say once a second
                 # if self._non_blocking_client.connected:
