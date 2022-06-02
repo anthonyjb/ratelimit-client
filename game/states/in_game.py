@@ -28,13 +28,15 @@ class InGame(GameState):
     def input(self, char):
         super().input(char)
 
+        # TMP
+        if char == 259:
+            self.game.client.send('move', {'direction': 1})
+
     def update(self, dt):
         super().update(dt)
 
     def render(self):
 
         self.overworld.render(self.game.main_window)
-
-        self.game.ui_console.log('width', self.overworld.size)
 
         super().render()

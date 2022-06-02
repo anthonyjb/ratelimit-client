@@ -39,7 +39,15 @@ class GameLoop:
         curses.cbreak()
         curses.curs_set(False)
         curses.start_color()
-        self.screen.keypad(True)
+
+        # These two numbers indicate the frame currently being displayed to
+        # the user of the client vs. the frame currently reached by players
+        # on the server.
+        self._client_frame_no = -1
+        self._server_frame_no = 0
+
+        # A table of frames received from the server
+        self._frames = {}
 
     @property
     def client(self):
@@ -67,6 +75,7 @@ class GameLoop:
             # Set up the main window for the game
             self._main_window = curses.newwin(*self.screen.getmaxyx(), 0, 0)
             self._main_window.nodelay(True)
+            self._main_window.keypad(True)
 
             # Initialize the game's color palette
             Colors.init()
@@ -90,8 +99,6 @@ class GameLoop:
             # Create a client and attempt to connect to the game server
             self._blocking_client = BlockingClient()
             self._non_blocking_client = NonBlockingClient()
-
-            c = None
 
             try:
                 self._blocking_client.connect()
@@ -117,6 +124,7 @@ class GameLoop:
 
             # Run the game loop
             peek_task = None
+            last_peek_time = time.time() - 1
             last_loop_time = time.time()
             while not self.quit:
                 self._ui_console.clear()
@@ -139,20 +147,44 @@ class GameLoop:
 
                 self.main_window.erase()
                 self._state_manager.render()
-                self._ui_console.render(self.main_window)
 
-                # @@ Peek say once a second
-                # if self._non_blocking_client.connected:
-                #     if not peek_task or peek_task.done():
-                #         peek_task = asyncio.ensure_future(self.peek())
+                if self._non_blocking_client.connected:
+
+                    if (
+                        not peek_task or peek_task.done()
+                        and last_peek_time > 1
+                    ):
+                        # Peek
+                        peek_task = asyncio.ensure_future(self.peek())
+                        last_peek_time = time.time()
+
+                self.ui_console.log('frame no', self._server_frame_no)
+                self.ui_console.log('frames', self._frames)
+
+                # NOTE: Must be the last line in the loop
+                self._ui_console.render(self.main_window)
 
         finally:
             self.cleanup()
 
     async def peek(self):
-        data = await self._non_blocking_client.send('peek')
+        """Peek at the current frame number on the server"""
 
-        # @@ IMPLEMENT
+        self._server_frame_no \
+                = (await self._non_blocking_client.send('peek'))['frame_no']
+
+        # If the server frame number is now greater than the client frame
+        # number fetch the frames that have elapsed.
+
+        if self._client_frame_no < self._server_frame_no:
+
+            new_frames = (await self._non_blocking_client.send(
+                'get_frames',
+                {'frame_no': self._client_frame_no + 1}
+            ))['frames']
+
+            self._frames.update({f[0]: f[1] for f in new_frames})
+            self._client_frame_no = self._server_frame_no
 
     def cleanup(self):
         """Clean up before exiting the game"""

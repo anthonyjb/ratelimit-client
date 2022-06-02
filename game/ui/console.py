@@ -114,4 +114,5 @@ class Console(Component):
 #
 # - support scrolling
 # - handle line return
+# - handle maps larger than scroll in the window
 #

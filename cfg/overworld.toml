@@ -1,10 +1,8 @@
 
-# Landmarks
 [landmarks]
 cave = ['o', 'black_coral']
 settlement = ['^', 'moutain_peaks']
 
-# Terrains
 [terrains]
 hills = ['~', 'coyote']
 moutain_peaks = ['^', 'alice_blue']
