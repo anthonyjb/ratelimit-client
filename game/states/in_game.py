@@ -46,11 +46,11 @@ class InGame(GameState):
         super().update(dt)
 
         if self.current_frame_no < self.game.frame_no:
-            self.current_frame_no == self.game.frame_no
+            self.current_frame_no = self.game.frame_no
 
             # @@ TMP
+            last_frame = self.game.frames[self.game.frame_no]
             if 'data' in last_frame:
-                last_frame = self.game.frames[self.game.frame_no]
                 self.party.x = last_frame['data'][1][0]
                 self.party.y = last_frame['data'][1][1]
 
