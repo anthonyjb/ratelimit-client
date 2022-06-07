@@ -49,3 +49,8 @@ class Settings:
 
 settings = Settings()
 
+
+# @@
+#
+# - Add support for local settings folder
+#

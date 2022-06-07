@@ -1,4 +1,6 @@
 
+party = ['@', 'snow']
+
 [landmarks]
 cave = ['o', 'black_coral']
 settlement = ['^', 'moutain_peaks']

@@ -2,6 +2,7 @@ import curses
 import logging
 
 from game.entities.overworld import Overworld
+from game.entities.party import Party
 from game.settings import settings
 from game.states.state import GameState
 from game.utils.input import key_pressed
@@ -19,10 +20,17 @@ class InGame(GameState):
     def enter(self, **kw):
         super().enter(**kw)
 
+        # The frame number we are currently displaying
+        self.current_frame_no = 0
+
         # Load the game world
         self.overworld = Overworld.from_json_type(
-            self.game.client.send('view_world')
+            self.game.client.send('world:read')
         )
+
+        # Load the party
+        self.party = Party.from_json_type(self.game.client.send('party:read'))
+        self.overworld.party = self.party
 
     def leave(self):
         super().leave()
@@ -36,6 +44,19 @@ class InGame(GameState):
 
     def update(self, dt):
         super().update(dt)
+
+        if self.current_frame_no < self.game.frame_no:
+            self.current_frame_no == self.game.frame_no
+
+            # @@ TMP
+            last_frame = self.game.frames[self.game.frame_no]
+            self.party.x = last_frame['data'][1][0]
+            self.party.y = last_frame['data'][1][1]
+
+        self.game.ui_console.log(
+            'frame no',
+            [self.game.frame_no, self.current_frame_no]
+        )
 
     def render(self):
 

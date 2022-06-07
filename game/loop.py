@@ -40,9 +40,8 @@ class GameLoop:
         curses.curs_set(False)
         curses.start_color()
 
-        # These two numbers indicate the frame currently being displayed to
-        # the user of the client vs. the frame currently reached by players
-        # on the server.
+        # These two numbers indicate the last frame we have stored in the
+        # client vs. the last frame on the server.
         self._client_frame_no = -1
         self._server_frame_no = 0
 
@@ -52,6 +51,14 @@ class GameLoop:
     @property
     def client(self):
         return self._blocking_client
+
+    @property
+    def frame_no(self):
+        return self._client_frame_no
+
+    @property
+    def frames(self):
+        return self._frames
 
     @property
     def main_window(self):
@@ -157,9 +164,6 @@ class GameLoop:
                         # Peek
                         peek_task = asyncio.ensure_future(self.peek())
                         last_peek_time = time.time()
-
-                self.ui_console.log('frame no', self._server_frame_no)
-                self.ui_console.log('frames', self._frames)
 
                 # NOTE: Must be the last line in the loop
                 self._ui_console.render(self.main_window)

@@ -13,6 +13,9 @@ class Overworld:
         self._size = size
         self._tiles = [OverworldTile() for i in range(size[0] * size[1])]
 
+        # The player party
+        self.party = None
+
     @property
     def size(self):
         return list(self._size)
@@ -28,10 +31,16 @@ class Overworld:
 
         size = self.size
 
+        # World
         for y in range(size[0]):
             for x in range(size[1]):
                 tile_index = y * size[1] + x
                 self._tiles[tile_index].render(ctx, y, x)
+
+        if self.party:
+
+            # Player party
+            self.party.render(ctx)
 
     @classmethod
     def from_json_type(self, json_type):
