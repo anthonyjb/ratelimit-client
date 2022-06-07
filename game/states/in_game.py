@@ -2,7 +2,9 @@ import curses
 import logging
 
 from game.entities.overworld import Overworld
+from game.settings import settings
 from game.states.state import GameState
+from game.utils.input import key_pressed
 
 
 class InGame(GameState):
@@ -28,9 +30,9 @@ class InGame(GameState):
     def input(self, char):
         super().input(char)
 
-        # TMP
-        if char == 259:
-            self.game.client.send('move', {'direction': 1})
+        for i, direction in enumerate(settings.controls.directions.keys()):
+            if key_pressed(f'controls.directions.{direction}', char):
+                self.game.client.send('move', {'direction': i})
 
     def update(self, dt):
         super().update(dt)

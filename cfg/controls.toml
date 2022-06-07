@@ -1,0 +1,10 @@
+
+[directions]
+up = [52, 259]
+up_right = 57
+right = [54, 261]
+down_right = 51
+down = [50, 258]
+down_left = 49
+left = [51, 260]
+up_left = 55

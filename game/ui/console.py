@@ -6,6 +6,7 @@ from game.settings import settings
 from game.ui.anchor import Anchor
 from game.ui.colors import Colors
 from game.ui.component import Component
+from game.utils.input import key_pressed
 
 
 # The height of the console
@@ -66,10 +67,10 @@ class Console(Component):
         if self.enabled:
 
             # Support scoll up / down
-            if char == settings.ui.console.scroll_down_char:
+            if key_pressed('ui.console.scroll_down_char', char):
                 self.scroll_down()
 
-            elif char == settings.ui.console.scroll_up_char:
+            elif key_pressed('ui.console.scroll_up_char', char):
                 self.scroll_up()
 
     def update(self, dt):
