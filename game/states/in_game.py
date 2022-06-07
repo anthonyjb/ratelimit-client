@@ -38,9 +38,16 @@ class InGame(GameState):
     def input(self, char):
         super().input(char)
 
+        self.game.ui_console.log('key', char)
+
         for i, direction in enumerate(settings.controls.directions.keys()):
             if key_pressed(f'controls.directions.{direction}', char):
-                self.game.client.send('move', {'direction': i})
+                response = self.game.client.send('move', {'direction': i})
+
+                # Immediately move the player as we control them
+                if 'position' in response:
+                    self.party.x = response['position'][0]
+                    self.party.y = response['position'][1]
 
     def update(self, dt):
         super().update(dt)
@@ -58,8 +65,6 @@ class InGame(GameState):
             'frame no',
             [self.game.frame_no, self.current_frame_no]
         )
-
-        # predictive movement
 
     def render(self):
 
