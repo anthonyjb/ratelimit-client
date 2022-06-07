@@ -2,7 +2,7 @@
 party = ['@', 'snow']
 
 [landmarks]
-cave = ['o', 'black_coral']
+cave = ['o', 'coyote']
 settlement = ['^', 'moutain_peaks']
 
 [terrains]

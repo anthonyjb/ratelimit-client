@@ -32,13 +32,16 @@ class InGame(GameState):
         self.party = Party.from_json_type(self.game.client.send('party:read'))
         self.overworld.party = self.party
 
+        # The time since the last frame update
+        self.last_frame_dt = 0
+
+        self.my_turn = False
+
     def leave(self):
         super().leave()
 
     def input(self, char):
         super().input(char)
-
-        self.game.ui_console.log('key', char)
 
         for i, direction in enumerate(settings.controls.directions.keys()):
             if key_pressed(f'controls.directions.{direction}', char):
@@ -48,18 +51,37 @@ class InGame(GameState):
                 if 'position' in response:
                     self.party.x = response['position'][0]
                     self.party.y = response['position'][1]
+                    self.my_turn = True
 
     def update(self, dt):
         super().update(dt)
 
-        if self.current_frame_no < self.game.frame_no:
-            self.current_frame_no = self.game.frame_no
+        self.game.ui_console.log(
+            'terrain',
+            self.overworld.get_tile(self.party.y, self.party.x).terrain
+        )
 
-            # @@ TMP
-            last_frame = self.game.frames[self.game.frame_no]
-            if 'data' in last_frame:
-                self.party.x = last_frame['data'][1][0]
-                self.party.y = last_frame['data'][1][1]
+        self.game.ui_console.log('position', [self.party.x, self.party.y])
+
+        if self.current_frame_no not in self.game.frames:
+            return
+
+        # @@ TMP: Prevent player getting too far behind
+        if self.current_frame_no < (self.game.frame_no - 10):
+            self.current_frame_no = self.game.frame_no - 10
+
+        if self.current_frame_no < self.game.frame_no and not self.my_turn:
+
+            self.last_frame_dt += dt
+
+            if self.last_frame_dt > 0.2:
+                self.current_frame_no += 1
+
+                # @@ TMP
+                last_frame = self.game.frames[self.current_frame_no]
+                if 'data' in last_frame:
+                    self.party.x = last_frame['data'][1][0]
+                    self.party.y = last_frame['data'][1][1]
 
         self.game.ui_console.log(
             'frame no',

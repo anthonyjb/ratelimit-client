@@ -137,6 +137,7 @@ class GameLoop:
                 self._ui_console.clear()
 
                 char = self.main_window.getch()
+                curses.flushinp()
 
                 if char == curses.ERR:
                     await asyncio.sleep(0.1)
