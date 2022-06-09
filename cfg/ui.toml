@@ -1,6 +1,6 @@
 
 display = [120, 40]
-display_resizable = false
+display_resizable = true
 
 # Color theme
 bg_color = 'dark_purple'

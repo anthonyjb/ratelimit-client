@@ -169,6 +169,7 @@ class GameLoop:
                 # NOTE: Must be the last line in the loop
                 self._ui_console.render(self.main_window)
 
+
         finally:
             self.cleanup()
 
@@ -224,7 +225,6 @@ class GameLoop:
         max_y, max_x = self.main_window.getmaxyx()
         self._ui_root.width = max_x
         self._ui_root.height = max_y
-
 
 # @@
 #

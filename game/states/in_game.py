@@ -5,6 +5,7 @@ from game.entities.overworld import Overworld
 from game.entities.party import Party
 from game.settings import settings
 from game.states.state import GameState
+from game.ui.colors import Colors
 from game.utils.input import key_pressed
 
 
@@ -28,26 +29,25 @@ class InGame(GameState):
             self.game.client.send('world:read')
         )
 
+        # The viewport bounds (into which the game [overworld or scene] is
+        # rendered).
+        self.viewport = [0, 0, 1, 1]
+
+        # The viewport offset (the y, x offset applied to content rendered
+        # within the viewport.
+        self.offset = [0, 0]
+
         # Load the party
         self.party = Party.from_json_type(self.game.client.send('party:read'))
         self.overworld.party = self.party
 
         # The time since the last frame update
         self.last_frame_dt = 0
-
         self.my_turn = False
 
-        self.pad = self.game.main_window.subpad(
-            self.overworld.size[0],
-            self.overworld.size[1],
-            0,
-            0
-        )
 
     def leave(self):
         super().leave()
-
-        del self.pad
 
     def input(self, char):
         super().input(char)
@@ -64,6 +64,10 @@ class InGame(GameState):
 
     def update(self, dt):
         super().update(dt)
+
+        # Update the viewport to match the screen size
+        max_y, max_x = self.game.main_window.getmaxyx()
+        self.viewport = [1, 1, max_y - 6, max_x - 1]
 
         self.game.ui_console.log(
             'terrain',
@@ -102,7 +106,35 @@ class InGame(GameState):
         )
 
     def render(self):
+        ctx = self.game.main_window
 
-        self.overworld.render(self.pad)
+        # Draw the viewport's content
+        self.overworld.render(ctx, self.offset, self.viewport)
+
+        # Draw the viewport border
+        t = 0
+        l = 0
+        b = self.viewport[2] + 1
+        r = self.viewport[3] + 1
+
+        border_color = Colors.pair('coyote', settings.ui.bg_color)
+        ctx.hline(t, l, curses.ACS_HLINE, r, border_color)
+        ctx.hline(b, l, curses.ACS_HLINE, r, border_color)
+        ctx.vline(t, l, curses.ACS_VLINE, b, border_color)
+        ctx.vline(t, r - 1, curses.ACS_VLINE, b, border_color)
+
+        corner_color = Colors.pair('independence', settings.ui.bg_color)
+        ctx.addch(t, l, '┏', corner_color)
+        ctx.addch(t, r - 1, '┓', corner_color)
+        ctx.addch(b, l, '┗', corner_color)
+        ctx.addch(b, r - 1, '┛', corner_color)
 
         super().render()
+
+
+# @@ calculate the offset based on parties position and the viewport /
+#    overworld. This should be a method against overworld as this knows the
+#    relevant offset if given the viewport.
+
+# @@ Discuss overworld and scene / entity palettes instead of them being part
+#    of the payload

@@ -2,6 +2,7 @@ import curses
 
 from game.settings import settings
 from game.ui.colors import Colors
+from game.utils.rendering import in_bounds
 
 
 class Overworld:
@@ -26,7 +27,7 @@ class Overworld:
             return self._tiles[y]
         return self._tiles[y * self._size[1] + x]
 
-    def render(self, ctx):
+    def render(self, ctx, offset, bounds):
         """Render the overworld"""
 
         size = self.size
@@ -35,12 +36,16 @@ class Overworld:
         for y in range(size[0]):
             for x in range(size[1]):
                 tile_index = y * size[1] + x
-                self._tiles[tile_index].render(ctx, y, x)
+
+                offset_y = offset[0] + y
+                offset_x = offset[1] + x
+                if in_bounds(bounds, offset_y, offset_x):
+                    self._tiles[tile_index].render(ctx, offset_y, offset_x)
 
         if self.party:
 
             # Player party
-            self.party.render(ctx)
+            self.party.render(ctx, offset, bounds)
 
     @classmethod
     def from_json_type(self, json_type):
