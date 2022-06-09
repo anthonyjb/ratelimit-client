@@ -37,8 +37,17 @@ class InGame(GameState):
 
         self.my_turn = False
 
+        self.pad = self.game.main_window.subpad(
+            self.overworld.size[0],
+            self.overworld.size[1],
+            0,
+            0
+        )
+
     def leave(self):
         super().leave()
+
+        del self.pad
 
     def input(self, char):
         super().input(char)
@@ -94,6 +103,6 @@ class InGame(GameState):
 
     def render(self):
 
-        self.overworld.render(self.game.main_window)
+        self.overworld.render(self.pad)
 
         super().render()

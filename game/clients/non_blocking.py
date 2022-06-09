@@ -39,8 +39,6 @@ class NonBlockingClient:
         except asyncio.TimeoutError:
             logging.info('Connect timed out')
 
-        logging.info(settings.server.node or uuid.getnode())
-
         # Register
         r = await self.send(
             'handshake',
@@ -102,11 +100,3 @@ class NonBlockingClient:
         #     await self.connect()
         #     response = await self._send(json_data)
         #     return json.loads(response or '{}')
-
-# Allow server timeout period to be configured
-
-# @@
-#
-# - Add ability to set the node ID in settings so we can run multiple clients
-#   on our own machines
-#

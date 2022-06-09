@@ -32,7 +32,7 @@ class BlockingClient:
         r = self.send(
             'handshake',
             {
-                'node': uuid.getnode(),
+                'node': settings.server.node or uuid.getnode(),
                 'password': settings.server.password
             }
         )
