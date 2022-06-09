@@ -64,23 +64,28 @@ class InGame(GameState):
         self.game.ui_console.log('position', [self.party.x, self.party.y])
 
         # @@ TMP: Prevent player getting too far behind
-        if self.current_frame_no < (self.game.frame_no - 25):
-            self.current_frame_no = self.game.frame_no - 25
+        if self.my_turn:
+            self.current_frame_no = self.game.frame_no
 
-        if self.current_frame_no < self.game.frame_no and not self.my_turn:
+        else:
 
-            self.last_frame_dt += dt
+            if self.current_frame_no < (self.game.frame_no - 25):
+                self.current_frame_no = self.game.frame_no - 25
 
-            if self.last_frame_dt > 0.1:
-                self.current_frame_no += 1
+            if self.current_frame_no < self.game.frame_no:
 
-                if self.current_frame_no in self.game.frames:
+                self.last_frame_dt += dt
 
-                    # @@ TMP
-                    last_frame = self.game.frames[self.current_frame_no]
-                    if 'data' in last_frame:
-                        self.party.x = last_frame['data'][1][0]
-                        self.party.y = last_frame['data'][1][1]
+                if self.last_frame_dt > 0.1:
+                    self.current_frame_no += 1
+
+                    if self.current_frame_no in self.game.frames:
+
+                        # @@ TMP
+                        last_frame = self.game.frames[self.current_frame_no]
+                        if 'data' in last_frame:
+                            self.party.x = last_frame['data'][1][0]
+                            self.party.y = last_frame['data'][1][1]
 
         self.game.ui_console.log(
             'frame no',
