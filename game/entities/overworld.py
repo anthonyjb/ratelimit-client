@@ -1,4 +1,5 @@
 import curses
+import math
 
 from game.settings import settings
 from game.ui.colors import Colors
@@ -20,6 +21,23 @@ class Overworld:
     @property
     def size(self):
         return list(self._size)
+
+    def get_offset(self, viewport):
+        """
+        Return the offset to render at so that the party is in view of the
+        given viewport.
+        """
+
+        height = viewport[2]
+        width = viewport[3]
+
+        y = viewport[0] + (round(height / 2) - self.party.y)
+        x = viewport[1] + (round(width / 2) - self.party.x)
+
+        y = min(viewport[0], max(y, -(self.size[0] - (height + 1))))
+        x = min(viewport[1], max(x, -(self.size[1] - width)))
+
+        return [y, x]
 
     def get_tile(self, y, x=None):
         """Return a tile either by index or y,x coordinates."""

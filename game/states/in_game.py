@@ -100,10 +100,7 @@ class InGame(GameState):
                             self.party.x = last_frame['data'][1][0]
                             self.party.y = last_frame['data'][1][1]
 
-        self.game.ui_console.log(
-            'frame no',
-            [self.game.frame_no, self.current_frame_no]
-        )
+        self.offset = self.overworld.get_offset(self.viewport)
 
     def render(self):
         ctx = self.game.main_window
@@ -131,10 +128,6 @@ class InGame(GameState):
 
         super().render()
 
-
-# @@ calculate the offset based on parties position and the viewport /
-#    overworld. This should be a method against overworld as this knows the
-#    relevant offset if given the viewport.
 
 # @@ Discuss overworld and scene / entity palettes instead of them being part
 #    of the payload
