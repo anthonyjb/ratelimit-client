@@ -81,10 +81,18 @@ class InGame(GameState):
 
         else:
 
+            if (
+                self.current_frame_no == -1
+                and self.current_frame_no < self.game.frame_no
+            ):
+                self.current_frame_no = self.game.frame_no
+
             if self.current_frame_no < (self.game.frame_no - 25):
                 self.current_frame_no = self.game.frame_no - 25
 
             if self.current_frame_no < self.game.frame_no:
+
+                logging.info(f'here: {self.current_frame_no}')
 
                 self.last_frame_dt += dt
 
@@ -127,6 +135,9 @@ class InGame(GameState):
 
         super().render()
 
+
+# - Create a viewport renderer for improved simplicity of rendering and
+#   management.
 
 # @@ Discuss overworld and scene / entity palettes instead of them being part
 #    of the payload
