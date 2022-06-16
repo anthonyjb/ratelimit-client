@@ -22,7 +22,7 @@ class InGame(GameState):
         super().enter(**kw)
 
         # The frame number we are currently displaying
-        self.current_frame_no = 0
+        self.current_frame_no = -1
 
         # Load the game world
         self.overworld = Overworld.from_json_type(
@@ -44,7 +44,6 @@ class InGame(GameState):
         # The time since the last frame update
         self.last_frame_dt = 0
         self.my_turn = False
-
 
     def leave(self):
         super().leave()
