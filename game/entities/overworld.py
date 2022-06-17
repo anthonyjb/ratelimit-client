@@ -3,7 +3,6 @@ import math
 
 from game.settings import settings
 from game.ui.colors import Colors
-from game.utils.rendering import in_bounds
 
 
 class Overworld:
@@ -22,20 +21,20 @@ class Overworld:
     def size(self):
         return list(self._size)
 
-    def get_offset(self, viewport):
+    def get_offset(self, size):
         """
         Return the offset to render at so that the party is in view of the
         given viewport.
         """
 
-        height = viewport[2]
-        width = viewport[3]
+        h = size[0]
+        w = size[1]
 
-        y = viewport[0] + (round(height / 2) - self.party.y)
-        x = viewport[1] + (round(width / 2) - self.party.x)
+        y = self.party.y - round(h / 2)
+        x = self.party.x - round(w / 2)
 
-        y = min(viewport[0], max(y, -(self.size[0] - (height + 1))))
-        x = min(viewport[1], max(x, -(self.size[1] - width)))
+        y = max(0, min(y, self.size[0] - h))
+        x = max(0, min(x, self.size[1] - w))
 
         return [y, x]
 
@@ -45,25 +44,25 @@ class Overworld:
             return self._tiles[y]
         return self._tiles[y * self._size[1] + x]
 
-    def render(self, ctx, offset, bounds):
+    def render(self, viewport):
         """Render the overworld"""
 
-        size = self.size
+        self.party.render(viewport)
 
-        # World
-        for y in range(size[0]):
-            for x in range(size[1]):
-                tile_index = y * size[1] + x
+    def render_static(self, viewport):
+        """
+        Render static elements within the overworld.
 
-                offset_y = offset[0] + y
-                offset_x = offset[1] + x
-                if in_bounds(bounds, offset_y, offset_x):
-                    self._tiles[tile_index].render(ctx, offset_y, offset_x)
+        The overworld doesn't change in appearance so we can render it into the
+        viewport just once.
+        """
 
-        if self.party:
+        h = self.size[0]
+        w = self.size[1]
 
-            # Player party
-            self.party.render(ctx, offset, bounds)
+        for y in range(h):
+            for x in range(w):
+                self._tiles[y * w + x].render(viewport, y, x)
 
     @classmethod
     def from_json_type(self, json_type):
@@ -123,8 +122,8 @@ class OverworldTile:
                 settings.ui.bg_color
             )
 
-    def render(self, ctx, y, x):
+    def render(self, viewport, y, x):
         """Render the tile"""
 
         if self.char:
-            ctx.insch(y, x, self.char, self.color_pair | curses.A_BOLD)
+            viewport.blit(y, x, 0, self.char, self.color_pair | curses.A_BOLD)

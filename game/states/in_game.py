@@ -7,6 +7,7 @@ from game.settings import settings
 from game.states.state import GameState
 from game.ui.colors import Colors
 from game.utils.input import key_pressed
+from game.utils.rendering import Viewport
 
 
 class InGame(GameState):
@@ -21,6 +22,9 @@ class InGame(GameState):
     def enter(self, **kw):
         super().enter(**kw)
 
+        # A viewport to render the game world within
+        self.viewport = Viewport()
+
         # The frame number we are currently displaying
         self.current_frame_no = -1
 
@@ -29,17 +33,12 @@ class InGame(GameState):
             self.game.client.send('world:read')
         )
 
-        # The viewport bounds (into which the game [overworld or scene] is
-        # rendered).
-        self.viewport = [0, 0, 1, 1]
-
-        # The viewport offset (the y, x offset applied to content rendered
-        # within the viewport.
-        self.offset = [0, 0]
-
         # Load the party
         self.party = Party.from_json_type(self.game.client.send('party:read'))
         self.overworld.party = self.party
+
+        # Render static elements within the overworld to the viewport
+        self.overworld.render_static(self.viewport)
 
         # The time since the last frame update
         self.last_frame_dt = 0
@@ -64,17 +63,6 @@ class InGame(GameState):
     def update(self, dt):
         super().update(dt)
 
-        # Update the viewport to match the screen size
-        max_y, max_x = self.game.main_window.getmaxyx()
-        self.viewport = [1, 1, max_y - 6, max_x - 1]
-
-        self.game.ui_console.log(
-            'terrain',
-            self.overworld.get_tile(self.party.y, self.party.x).terrain
-        )
-
-        self.game.ui_console.log('position', [self.party.x, self.party.y])
-
         # @@ TMP: Prevent player getting too far behind
         if self.my_turn:
             self.current_frame_no = self.game.frame_no
@@ -92,8 +80,6 @@ class InGame(GameState):
 
             if self.current_frame_no < self.game.frame_no:
 
-                logging.info(f'here: {self.current_frame_no}')
-
                 self.last_frame_dt += dt
 
                 if self.last_frame_dt > 0.1:
@@ -107,19 +93,32 @@ class InGame(GameState):
                             self.party.x = last_frame['data'][1][0]
                             self.party.y = last_frame['data'][1][1]
 
-        self.offset = self.overworld.get_offset(self.viewport)
-
     def render(self):
         ctx = self.game.main_window
 
+        max_y, max_x = self.game.main_window.getmaxyx()
+
+        # Clear dynamic layer for viewport
+        self.viewport.clear(1)
+
+        # Render the dynamic elements within the overworld
+        self.overworld.render(self.viewport)
+
         # Draw the viewport's content
-        self.overworld.render(ctx, self.offset, self.viewport)
+        viewport_rect = [1, 1, max_y - 9, max_x - 3]
+
+        self.viewport.render(
+            ctx,
+            viewport_rect[0:2],
+            viewport_rect[2:],
+            self.overworld.get_offset([max_y - 8, max_x - 4])
+        )
 
         # Draw the viewport border
         t = 0
         l = 0
-        b = self.viewport[2] + 1
-        r = self.viewport[3] + 1
+        b = viewport_rect[2] + 2
+        r = viewport_rect[3] + 2
 
         border_color = Colors.pair('coyote', settings.ui.bg_color)
         ctx.hline(t, l, curses.ACS_HLINE, r, border_color)
@@ -135,9 +134,15 @@ class InGame(GameState):
 
         super().render()
 
+        self.game.ui_console.log(
+            'terrain',
+            self.overworld.get_tile(self.party.y, self.party.x).terrain
+        )
 
-# - Create a viewport renderer for improved simplicity of rendering and
-#   management.
+        self.game.ui_console.log(
+            'offset',
+            self.overworld.get_offset([max_y - 8, max_x - 4])
+        )
 
 # @@ Discuss overworld and scene / entity palettes instead of them being part
 #    of the payload
