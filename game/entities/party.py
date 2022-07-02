@@ -1,7 +1,7 @@
 import curses
 
 from game.settings import settings
-from game.ui.colors import Colors
+from game.utils.colors import Colors
 
 
 class Party:

@@ -4,8 +4,8 @@ import textwrap
 
 from game.settings import settings
 from game.ui.anchor import Anchor
-from game.ui.colors import Colors
 from game.ui.component import Component
+from game.utils.colors import Colors
 from game.utils.input import key_pressed
 
 
@@ -115,5 +115,4 @@ class Console(Component):
 #
 # - support scrolling
 # - handle line return
-# - handle maps larger than scroll in the window
 #

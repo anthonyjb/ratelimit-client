@@ -35,8 +35,6 @@ class InfoPanel(Component):
 
     def render(self, ctx):
 
-        ctx.clear()
-
         if not self.visible:
             return
 

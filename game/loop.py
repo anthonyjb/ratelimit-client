@@ -11,9 +11,9 @@ from game.clients.non_blocking import NonBlockingClient
 from game.settings import settings
 from game import states
 from game.states.manager import GameStateManager
-from game.ui.colors import Colors
 from game.ui.component import Component
 from game.ui.console import Console
+from game.utils.colors import Colors
 
 
 class GameLoop:

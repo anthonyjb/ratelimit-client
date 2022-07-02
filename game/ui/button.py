@@ -2,9 +2,9 @@ import curses
 import textwrap
 
 from game.settings import settings
-from game.ui.colors import Colors
 from game.ui.component import Component
 from game.ui.event import Event
+from game.utils.colors import Colors
 
 
 class Button(Component):

@@ -75,28 +75,3 @@ class NonBlockingClient:
             remaining = response_len - len(response) * 4
 
         return json.loads(response.decode('utf8') or '{}')
-
-        # try:
-        #     response = await asyncio.wait_for(future, timeout=5)
-        #     return json.loads(response or '{}')
-
-        # except (
-        #     asyncio.exceptions.IncompleteReadError,
-        #     asyncio.exceptions.TimeoutError
-        # ):
-        #     return
-
-        #     # Try again after a short delay
-        #     await asyncio.sleep(1)
-
-        #     response = await self._send(json_data)
-        #     return json.loads(response or '{}')
-
-        # except asyncio.exceptions.InvalidStateError:
-        #     return
-
-        #     # Attempt to reconnect and send again after a short delay
-        #     await asyncio.sleep(1)
-        #     await self.connect()
-        #     response = await self._send(json_data)
-        #     return json.loads(response or '{}')

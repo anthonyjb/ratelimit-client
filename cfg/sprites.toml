@@ -1,0 +1,29 @@
+fallback = ['?', 'alice_blue']
+
+[biomes]
+hills = ['~', 'coyote']
+mountains = ['^', 'black_coral']
+plains = ['"', 'hunter_green']
+water = ['=', 'queen_blue']
+woods = ['&', 'dark_green']
+woods__broadleaf = ['&', 'amazon_green']
+woods__evergreen = ['&', 'dark_green']
+woods__evergreen__ancient = ['%', 'dark_green']
+
+[entities]
+goblin = ['g', 'indigo_dye']
+rat = ['r', 'dark_liver_horses']
+
+[features]
+stone_wall = ['#', 'black_coral']
+tree = ['&', 'dark_green']
+
+[items]
+short_sword = ['(', 'black_coral']
+
+[landmarks]
+cave = ['O', 'black_coral']
+
+[terrains]
+earth = ['.', 'coyote']
+stone = ['.', 'black_coral']

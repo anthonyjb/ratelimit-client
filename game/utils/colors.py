@@ -59,7 +59,10 @@ class Colors:
 
     @classmethod
     def pair(cls, fg, bg):
-        """Add a color pair to the games palette"""
+        """
+        Add a color pair to the games palette (if not already present) and
+        return it.
+        """
 
         pair = (fg, bg)
         if pair not in cls._color_pairs:

@@ -3,8 +3,8 @@ from enum import Flag, auto
 import textwrap
 
 from game.settings import settings
-from game.ui.colors import Colors
 from game.ui.component import Component
+from game.utils.colors import Colors
 
 
 class Anchor(Component):
