@@ -213,9 +213,13 @@ class GameLoop:
         curses.echo()
         curses.endwin()
 
+    # Bootstraps
+
     def fetch_sprite_sheet(self):
         """Fetch the sprite sheet from the server"""
         SpriteSheet.from_json_type(self.client.send('sprite_sheet:read'))
+
+    # Event handlers
 
     def on_resize(self):
         """Handle the console being resized"""
@@ -224,6 +228,7 @@ class GameLoop:
         max_y, max_x = self.main_window.getmaxyx()
         self._ui_root.width = max_x
         self._ui_root.height = max_y
+
 
 # @@
 #

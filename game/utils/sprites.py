@@ -101,11 +101,13 @@ class SpriteSheet:
 
     def get(self, base_type, path):
         """Return a sprite based on the given path"""
+
         while path:
             try:
                 return self._sprites[base_type][path]
             except KeyError:
                 path = tuple(path[0:-1])
+
         return self._fallback
 
     @classmethod

@@ -32,9 +32,10 @@ class InGame(GameState):
     def update(self, dt):
         super().update(dt)
 
-    def render(self):
-        ctx = self.game.main_window
+        if self.paused:
+            return
 
+        self.game_state_manager.push('overworld')
 
 
 # @@

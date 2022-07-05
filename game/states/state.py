@@ -50,6 +50,10 @@ class GameState(metaclass=RegisterGameState):
         return self._game_state_manager
 
     @property
+    def paused(self):
+        return self._status == self.PAUSED
+
+    @property
     def status(self):
         return self._status
 

@@ -80,11 +80,11 @@ class Overworld:
                 biome, landmark = tiles[tile_index]
                 tile = overworld.get_tile(tile_index)
 
-                if biome > -1:
-                    tile.biome = biome
+                if biome != -1:
+                    tile.biome = tuple(biome)
 
-                if landmark > -1:
-                    tile.landmark = landmark
+                if landmark != -1:
+                    tile.landmark = tuple(landmark)
 
         return overworld
 
@@ -96,26 +96,28 @@ class OverworldTile:
 
     def __init__(self, biome=None, landmark=None):
 
-        self.sprites = SpriteSheet.singelton()
         self.landmark = landmark
         self.biome = biome
 
     @property
     def character(self):
+        sprites = SpriteSheet.singleton()
+
         if self.landmark:
-            return self.sprites.get('landmarks', self.landmark).character
+            return sprites.get('landmarks', self.landmark).character
 
         if self.biome:
-            return self.sprites.get('biomes', self.biome).character
+            return sprites.get('biomes', self.biome).character
 
     @property
     def color_pair(self):
+        sprites = SpriteSheet.singleton()
 
         if self.landmark:
-            return self.sprites.get('landmarks', self.biome).color_pair
+            return sprites.get('landmarks', self.landmark).color_pair
 
         if self.biome:
-            return self.sprites.get('biomes', self.biome).color_pair
+            return sprites.get('biomes', self.biome).color_pair
 
     def render(self, viewport, y, x):
         """Render the tile"""
