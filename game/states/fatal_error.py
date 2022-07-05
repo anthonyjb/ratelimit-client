@@ -39,9 +39,7 @@ class FatalError(GameState):
     ):
         super().enter(**kw)
 
-        self.title = title
-        self.summary = summary
-        self.error = error
+        self._error = error
 
         # Log the error
         logging.exception('FATAL_ERROR', exc_info=True)
@@ -80,11 +78,9 @@ class FatalError(GameState):
         qs = urllib.parse.urlencode({
             'to': 'ant@getme.co.uk',
             'subject': 'Error report...',
-            'body': self.error
+            'body': self._error
         })
 
         webbrowser.open(f'mailto:?{qs}', new=1)
 
         self.game.quit = True
-
-GameStateManager.register(FatalError)

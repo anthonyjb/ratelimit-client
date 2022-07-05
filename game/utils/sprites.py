@@ -70,6 +70,8 @@ class SpriteSheet:
     color used for each sprite is defined in the clients sprites cfg file.
     """
 
+    _singleton = None
+
     def __init__(self):
         self._sprites = {
 
@@ -107,10 +109,22 @@ class SpriteSheet:
         return self._fallback
 
     @classmethod
-    def from_json_type(self, json_type):
+    def singleton(cls):
+        """
+        The game only supports a single sprite sheet which is loaded from the
+        game server when the client boots. To make it simple for all code to
+        access the sprite sheet after that the get method provide access to
+        the last instanced generated via the `from_json_type` method.
+        """
+        assert cls._singleton, 'Sprite sheet accessed before being fetched.'
+        return cls._singleton
+
+    @classmethod
+    def from_json_type(cls, json_type):
         """Convert a JSON type object to a `SpriteSheet` instance"""
 
         sprite_sheet = SpriteSheet()
+        cls._singleton = sprite_sheet
 
         sprite_sheet.set_fallback(
             Sprite(

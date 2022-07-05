@@ -15,11 +15,11 @@ class Party:
 
     @property
     def char(self):
-        return settings.overworld.party[0]
+        return '@'
 
     @property
     def color_pair(self):
-        return Colors.pair(settings.overworld.party[1], settings.ui.bg_color)
+        return Colors.pair('snow', settings.ui.bg_color)
 
     def render(self, viewport):
         """Render the party"""

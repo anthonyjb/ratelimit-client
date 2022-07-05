@@ -3,6 +3,7 @@ import math
 
 from game.settings import settings
 from game.utils.colors import Colors
+from game.utils.sprites import SpriteSheet
 
 
 class Overworld:
@@ -69,8 +70,6 @@ class Overworld:
         """Convert a JSON type object to an `Overworld` instance"""
 
         size = [json_type['size'][1], json_type['size'][0]]
-        landmarks = json_type['landmarks']
-        terrains = json_type['terrains']
         tiles = json_type['tiles']
 
         overworld = Overworld(size)
@@ -78,14 +77,14 @@ class Overworld:
             for x in range(size[1]):
 
                 tile_index = y * size[1] + x
-                terrain, landmark = tiles[tile_index]
+                biome, landmark = tiles[tile_index]
                 tile = overworld.get_tile(tile_index)
 
-                if terrain > -1:
-                    tile.terrain = terrains[terrain]
+                if biome > -1:
+                    tile.biome = biome
 
                 if landmark > -1:
-                    tile.landmark = landmarks[landmark]
+                    tile.landmark = landmark
 
         return overworld
 
@@ -95,35 +94,37 @@ class OverworldTile:
     A tile within the game's overworld.
     """
 
-    def __init__(self, terrain=None, landmark=None):
-        self.terrain = terrain
+    def __init__(self, biome=None, landmark=None):
+
+        self.sprites = SpriteSheet.singelton()
         self.landmark = landmark
+        self.biome = biome
 
     @property
-    def char(self):
+    def character(self):
         if self.landmark:
-            return settings.overworld.landmarks[self.landmark][0]
+            return self.sprites.get('landmarks', self.landmark).character
 
-        if self.terrain:
-            return settings.overworld.terrains[self.terrain][0]
+        if self.biome:
+            return self.sprites.get('biomes', self.biome).character
 
     @property
     def color_pair(self):
 
         if self.landmark:
-            return Colors.pair(
-                settings.overworld.landmarks[self.landmark][1],
-                settings.ui.bg_color
-            )
+            return self.sprites.get('landmarks', self.biome).color_pair
 
-        if self.terrain:
-            return Colors.pair(
-                settings.overworld.terrains[self.terrain][1],
-                settings.ui.bg_color
-            )
+        if self.biome:
+            return self.sprites.get('biomes', self.biome).color_pair
 
     def render(self, viewport, y, x):
         """Render the tile"""
 
-        if self.char:
-            viewport.blit(y, x, 0, self.char, self.color_pair | curses.A_BOLD)
+        if self.character:
+            viewport.blit(
+                y,
+                x,
+                0,
+                self.character,
+                self.color_pair | curses.A_BOLD
+            )

@@ -14,6 +14,7 @@ from game.states.manager import GameStateManager
 from game.ui.component import Component
 from game.ui.console import Console
 from game.utils.colors import Colors
+from game.utils.sprites import SpriteSheet
 
 
 class GameLoop:
@@ -69,6 +70,10 @@ class GameLoop:
         return self._screen
 
     @property
+    def sprite_sheet(self):
+        return self._sprite_sheet
+
+    @property
     def ui_console(self):
         return self._ui_console
 
@@ -113,6 +118,13 @@ class GameLoop:
 
                 # Set the initial game state
                 self._state_manager.push('in_game')
+
+                # Load the sprite sheet from the server
+                self._state_manager.push(
+                    'bootstrap',
+                    message='Fetching sprite sheet...',
+                    task=lambda: self.fetch_sprite_sheet()
+                )
 
             except (Exception, ConnectionRefusedError, socket.gaierror) as error:
                 self._state_manager.collapse(
@@ -201,25 +213,12 @@ class GameLoop:
         curses.echo()
         curses.endwin()
 
+    def fetch_sprite_sheet(self):
+        """Fetch the sprite sheet from the server"""
+        SpriteSheet.from_json_type(self.client.send('sprite_sheet:read'))
+
     def on_resize(self):
         """Handle the console being resized"""
-
-        if not settings.ui.display_resizable:
-
-            # Attempt (or pray) to fix the display size
-
-            if os.name == 'nt':
-
-                # Window
-                os.system(
-                    f'mode {settings.ui.display[0]},{settings.ui.display[1]}'
-                )
-            else:
-
-                # MacOS / Linux
-                print(
-                    f'\x1b[8;{settings.ui.display[1]};{settings.ui.display[0]}t'
-                )
 
         # Update the root UI size to that of the main window
         max_y, max_x = self.main_window.getmaxyx()

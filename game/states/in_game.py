@@ -23,10 +23,6 @@ class InGame(GameState):
     def enter(self, **kw):
         super().enter(**kw)
 
-        self.sprite_sheet = SpriteSheet.from_json_type(
-            self.game.client.send('sprite_sheet:read')
-        )
-
     def leave(self):
         super().leave()
 
@@ -39,12 +35,11 @@ class InGame(GameState):
     def render(self):
         ctx = self.game.main_window
 
-        self.game.ui_console.log(
-            'sprite',
-            self.sprite_sheet.get('biomes', (4,))
-        )
+
 
 # @@
 #
 # - Move sprite sheet load to game loop start code
+# - Go back to rendering the overworld, update it to use the new spritesheet
+#   and json type data.
 #
