@@ -26,18 +26,17 @@ class Overworld(GameState):
         # A viewport to render the game world within
         self.viewport = Viewport()
 
+        # Bootstraps
+        self.game.bootstrap(
+            'Fetching overworld...',
+            lambda: self.fetch_overworld()
+        )
+
     def update(self, dt):
         super().update(dt)
 
         if self.paused:
             return
-
-        if not self.overworld:
-            self.game_state_manager.push(
-                'bootstrap',
-                message='Fetching overworld...',
-                task=lambda: self.fetch_overworld()
-            )
 
     def render(self):
 
@@ -49,10 +48,10 @@ class Overworld(GameState):
         max_y, max_x = self.game.main_window.getmaxyx()
 
         # Clear dynamic layer for viewport
-        #self.viewport.clear(z=1)
+        self.viewport.clear(z=1)
 
         # Render the dynamic elements within the overworld
-        #self.overworld.render(self.viewport)
+        self.overworld.render(self.viewport)
 
         # Draw the viewport's content
         viewport_rect = [2, 1, max_y - 9, max_x - 3]
@@ -100,8 +99,3 @@ class Overworld(GameState):
 
         # Render static elements within the overworld to the viewport
         self.overworld.render_static(self.viewport)
-
-
-# @@ Let's say we want a separate bootstrap for rendering the overworld how
-# would that work? Would be nice to be able to do something like
-# `self.game.bootstap('Fetching overworld...', lambda: self.fetch_overworld())`

@@ -37,10 +37,3 @@ class InGame(GameState):
 
         self.game_state_manager.push('overworld')
 
-
-# @@
-#
-# - Move sprite sheet load to game loop start code
-# - Go back to rendering the overworld, update it to use the new spritesheet
-#   and json type data.
-#

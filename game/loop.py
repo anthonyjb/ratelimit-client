@@ -117,13 +117,12 @@ class GameLoop:
                 await self._non_blocking_client.connect()
 
                 # Set the initial game state
-                self._state_manager.push('in_game')
+                self._state_manager.push('join_game')
 
                 # Load the sprite sheet from the server
-                self._state_manager.push(
-                    'bootstrap',
-                    message='Fetching sprite sheet...',
-                    task=lambda: self.fetch_sprite_sheet()
+                self.bootstrap(
+                    'Fetching sprite sheet...',
+                    lambda: self.fetch_sprite_sheet()
                 )
 
             except (Exception, ConnectionRefusedError, socket.gaierror) as error:
@@ -203,6 +202,10 @@ class GameLoop:
 
             self._frames.update({f[0]: f[1] for f in new_frames})
             self._client_frame_no = self._server_frame_no
+
+    def bootstrap(self, message, task):
+        """Present a message to the user while performing a synchronous task"""
+        self._state_manager.push('bootstrap', message=message, task=task)
 
     def cleanup(self):
         """Clean up before exiting the game"""
