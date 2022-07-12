@@ -1,5 +1,6 @@
 import curses
 import logging
+import time
 
 from game.entities.overworld import Overworld
 from game.entities.party import Party
@@ -21,9 +22,35 @@ class CreateCharacter(GameState):
     def enter(self, **kw):
         super().enter(**kw)
 
-    def render(self):
+    def update(self, dt):
 
-        self.game.main_window.addstr(1, 1, 'CREATE CHARACTER')
+        created, payload = self.game.bootstrap(
+            'Attempting to create a game...',
+            lambda: self.create_character()
+        )
 
+        if created:
+            self.game_state_manager.collapse('join_game')
+
+        else:
+            time.sleep(10)
+
+    # Bootstraps
+
+    def create_character(self):
+        """Attempt to create a character for the player"""
+        response = self.game.client.send(
+            'player:create',
+            {
+                'name': 'Ant',
+                'race': 'dwarf',
+                'profession': 'mage'
+            }
+        )
+
+        if response['success']:
+            return True, response['player']
+
+        return False, response['reason']
 
 # ?? Add current state as a default to the console

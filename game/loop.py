@@ -11,6 +11,7 @@ from game.clients.non_blocking import NonBlockingClient
 from game.settings import settings
 from game import states
 from game.states.manager import GameStateManager
+from game.ui.busy import Busy
 from game.ui.component import Component
 from game.ui.console import Console
 from game.utils.colors import Colors
@@ -102,6 +103,9 @@ class GameLoop:
             self.on_resize()
 
             # Set up development console UI component
+            self._ui_busy = Busy()
+            self._ui_root.add_child(self._ui_busy)
+
             self._ui_console = Console()
             self._ui_root.add_child(self._ui_console)
 
@@ -177,7 +181,8 @@ class GameLoop:
                         peek_task = asyncio.ensure_future(self.peek())
                         last_peek_time = time.time()
 
-                # NOTE: Must be the last line in the loop
+                # NOTE: Must be the last lines in the loop
+                self._ui_busy.render(self.main_window)
                 self._ui_console.render(self.main_window)
 
 
@@ -205,7 +210,15 @@ class GameLoop:
 
     def bootstrap(self, message, task):
         """Present a message to the user while performing a synchronous task"""
-        self._state_manager.push('bootstrap', message=message, task=task)
+        self._ui_busy.visible = True
+        self._ui_busy.message = message
+        self._ui_busy.render(self.main_window)
+        self.main_window.refresh()
+
+        response = task()
+
+        self._ui_busy.visible = False
+        return response
 
     def cleanup(self):
         """Clean up before exiting the game"""

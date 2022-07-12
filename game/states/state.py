@@ -40,6 +40,7 @@ class GameState(metaclass=RegisterGameState):
         self._game_state_manager = game_state_manager
         self._status = self.READY
         self._ui_root = None
+        self._slept = None
 
     @property
     def game(self):
@@ -70,6 +71,9 @@ class GameState(metaclass=RegisterGameState):
         assert self.status == self.READY, \
             'State can only be entered if status is READY.'
 
+        # Set the state to active
+        self._status = self.ACTIVE
+
         # Add root UI component
         self._ui_root = Component()
         self._ui_root.add_tag('state_root')
@@ -77,8 +81,8 @@ class GameState(metaclass=RegisterGameState):
         self._ui_root.right = 0
         self.game.ui_root.add_child(self._ui_root)
 
-        # Set the state to active
-        self._status = self.ACTIVE
+        # Reset slept
+        self._slept = None
 
     def leave(self):
         """
@@ -136,6 +140,11 @@ class GameState(metaclass=RegisterGameState):
         previous call to update.
         """
 
+        if self._slept is not None:
+            self._slept -= dt
+            if self._slept <= 0:
+                self._slept = None
+
         if self.ui_root:
             self.ui_root.update(dt)
 
@@ -144,3 +153,22 @@ class GameState(metaclass=RegisterGameState):
 
         if self.ui_root:
             self.ui_root.render(self.game.main_window)
+
+    # Helpers
+
+    def slept(self, seconds):
+        """
+        Slept provides a simple mechanism to execute a block of code at
+        regular intervals (the given number of seconds) while not blocking
+        the state. The first call to slept will always return True, subsequent
+        calls will only return True once the the given period of time has
+        past.
+
+        NOTE: Slept isn't designed to be accurate, it relies on the delta (dt)
+        set in update and therefore is susceptible to other blocking code.
+        """
+        if self._slept is None:
+            self._slept = seconds
+            return True
+
+        return False
