@@ -35,14 +35,17 @@ class JoinGame(GameState):
 
             joined, reason = self.game.bootstrap(
                 self._status_message,
-                lambda: self.join()
+                lambda: self.join(),
+                hide_on_done=False
             )
 
             if joined:
                 self.game_state_manager.collapse('in_game')
+                self.game.hide_bootstrap()
 
             if reason == 'player_not_registered':
                 self.game_state_manager.collapse('create_character')
+                self.game.hide_bootstrap()
 
             elif reason == 'party_not_in_overworld':
                 self._status_message \

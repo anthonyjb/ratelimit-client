@@ -1,4 +1,6 @@
 
+enter_scene = 'e'
+
 [directions]
 up = [56, 259]
 up_right = 57

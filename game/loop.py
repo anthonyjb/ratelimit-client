@@ -75,6 +75,10 @@ class GameLoop:
         return self._sprite_sheet
 
     @property
+    def ui_busy(self):
+        return self._ui_busy
+
+    @property
     def ui_console(self):
         return self._ui_console
 
@@ -191,7 +195,6 @@ class GameLoop:
 
     async def peek(self):
         """Peek at the current frame number on the server"""
-
         self._server_frame_no \
                 = (await self._non_blocking_client.send('peek'))['frame_no']
 
@@ -208,7 +211,7 @@ class GameLoop:
             self._frames.update({f[0]: f[1] for f in new_frames})
             self._client_frame_no = self._server_frame_no
 
-    def bootstrap(self, message, task):
+    def bootstrap(self, message, task, hide_on_done=True):
         """Present a message to the user while performing a synchronous task"""
         self._ui_busy.visible = True
         self._ui_busy.message = message
@@ -217,7 +220,9 @@ class GameLoop:
 
         response = task()
 
-        self._ui_busy.visible = False
+        if hide_on_done:
+            self._ui_busy.visible = False
+
         return response
 
     def cleanup(self):
@@ -228,6 +233,14 @@ class GameLoop:
         curses.nocbreak()
         curses.echo()
         curses.endwin()
+
+    def hide_bootstrap(self):
+        """
+        Hide the bootstap message being displayed, useful if you are making
+        multiple calls to bootstrap with the same message and want to avoid
+        flickering.
+        """
+        self._ui_busy.visible = False
 
     # Bootstraps
 

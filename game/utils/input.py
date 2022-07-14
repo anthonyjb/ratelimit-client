@@ -11,7 +11,9 @@ def key_pressed(key_path, char):
     for key in key_path.split('.'):
         value = getattr(value, key)
 
-    if isinstance(value, list):
-        return char in value
+    if not isinstance(value, list):
+        value = [value]
 
-    return value == char
+    value = [ord(v) if isinstance(v, str) else v for v in value]
+
+    return char in value

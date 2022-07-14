@@ -24,6 +24,6 @@ short_sword = ['(', 'black_coral']
 [landmarks]
 cave = ['O', 'black_coral']
 
-[terrains]
+[terrain]
 earth = ['.', 'coyote']
 stone = ['.', 'black_coral']

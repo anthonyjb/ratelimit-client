@@ -12,7 +12,7 @@ from game.utils.rendering import Viewport
 class Overworld(GameState):
     """
     A view of the game overworld which the party can navigate around. The
-    overworld scene should only be entered from the in-game scene.
+    overworld state should only be entered from the in-game state.
     """
 
     ID = 'overworld'
@@ -32,6 +32,14 @@ class Overworld(GameState):
             lambda: self.fetch_overworld()
         )
 
+    def input(self, char):
+        super().input(char)
+
+        if key_pressed(f'controls.enter_scene', char):
+            response = self.game.client.send('party:enter_scene')
+            if response['success']:
+                self.game_state_manager.pop(in_scene=True)
+
     def update(self, dt):
         super().update(dt)
 
@@ -40,7 +48,7 @@ class Overworld(GameState):
 
     def render(self):
 
-        if self.paused or not self.overworld:
+        if self.paused:
             return
 
         ctx = self.game.main_window
