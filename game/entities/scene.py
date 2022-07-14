@@ -15,67 +15,121 @@ class Scene:
         self._size = size
         self._tiles = [SceneTile() for i in range(size[0] * size[1])]
 
-        # The players
-        self.players = None
+        # The player
+        self.player = None
 
     @property
     def size(self):
         return list(self._size)
 
+    def get_offset(self, size):
+        """
+        Return the offset to render at so that the player is in view of the
+        given viewport.
+        """
+
+        h = size[0]
+        w = size[1]
+
+        y = self.player.y - round(h / 2)
+        x = self.player.x - round(w / 2)
+
+        y = max(0, min(y, self.size[0] - h))
+        x = max(0, min(x, self.size[1] - w))
+
+        return [y, x]
+
     def get_tile(self, y, x=None):
-        """Return a tile either by index or y,x coordinates."""
+        """Return a tile either by index or y,x coordinates"""
         if x is None:
             return self._tiles[y]
         return self._tiles[y * self._size[1] + x]
 
     def render(self, viewport):
-        """Render the overworld"""
+        """Render the scene"""
 
-    def render_static(self, viewport):
-        """
-        Render static elements within the overworld.
+        h = self.size[0]
+        w = self.size[1]
 
-        The overworld doesn't change in appearance so we can render it into the
-        viewport just once.
-        """
+        for y in range(h):
+            for x in range(w):
+                self._tiles[y * w + x].render(viewport, y, x)
+
+        self.player.render(viewport)
 
     @classmethod
-    def from_json_type(self, json_type):
+    def from_json_type(cls, json_type):
         """Convert a JSON type object to an `Overworld` instance"""
 
         size = [json_type['size'][1], json_type['size'][0]]
         tiles = json_type['tiles']
 
+        scene = cls(size)
+        for y in range(size[0]):
+            for x in range(size[1]):
+
+                tile_index = y * size[1] + x
+                terrain, scenary, items, creatures = tiles[tile_index]
+                tile = scene.get_tile(tile_index)
+
+                if terrain != -1:
+                    tile.terrain = tuple(terrain)
+
+                if scenary != -1:
+                    tile.scenary = tuple(scenary)
+
+                if items != -1:
+                    tile.items = tuple(items)
+
+                if creatures != -1:
+                    tile.creatures = tuple(creatures)
+
+        return scene
+
 
 class SceneTile:
     """
-    A tile within the game's overworld.
+    A tile within the scene.
     """
 
-    def __init__(self, biome=None, landmark=None):
+    def __init__(self, terrain=None, scenary=None, items=None, creatures=None):
 
-        self.landmark = landmark
-        self.biome = biome
+        self.terrain = terrain
+        self.scenary = scenary
+        self.items = items
+        self.creatures = creatures
 
     @property
     def character(self):
         sprites = SpriteSheet.singleton()
 
-        if self.landmark:
-            return sprites.get('landmarks', self.landmark).character
+        if self.creatures:
+            return sprites.get('creatures', self.creatures).character
 
-        if self.biome:
-            return sprites.get('biomes', self.biome).character
+        if self.items:
+            return sprites.get('items', self.items).character
+
+        if self.scenary:
+            return sprites.get('scenary', self.scenary).character
+
+        if self.terrain:
+            return sprites.get('terrain', self.terrain).character
 
     @property
     def color_pair(self):
         sprites = SpriteSheet.singleton()
 
-        if self.landmark:
-            return sprites.get('landmarks', self.landmark).color_pair
+        if self.creatures:
+            return sprites.get('creatures', self.creatures).color_pair
 
-        if self.biome:
-            return sprites.get('biomes', self.biome).color_pair
+        if self.items:
+            return sprites.get('items', self.items).color_pair
+
+        if self.scenary:
+            return sprites.get('scenary', self.scenary).color_pair
+
+        if self.terrain:
+            return sprites.get('terrain', self.terrain).color_pair
 
     def render(self, viewport, y, x):
         """Render the tile"""
@@ -88,3 +142,8 @@ class SceneTile:
                 self.character,
                 self.color_pair | curses.A_BOLD
             )
+
+# @@ ??
+# @@ Should we switch to render layers instead, so render terrain, scenary as
+# having them all in separate layers means we can potentially be more
+# efficient in how we render stuff.

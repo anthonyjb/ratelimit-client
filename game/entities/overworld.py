@@ -40,7 +40,7 @@ class Overworld:
         return [y, x]
 
     def get_tile(self, y, x=None):
-        """Return a tile either by index or y,x coordinates."""
+        """Return a tile either by index or y,x coordinates"""
         if x is None:
             return self._tiles[y]
         return self._tiles[y * self._size[1] + x]
@@ -66,13 +66,13 @@ class Overworld:
                 self._tiles[y * w + x].render(viewport, y, x)
 
     @classmethod
-    def from_json_type(self, json_type):
+    def from_json_type(cls, json_type):
         """Convert a JSON type object to an `Overworld` instance"""
 
         size = [json_type['size'][1], json_type['size'][0]]
         tiles = json_type['tiles']
 
-        overworld = Overworld(size)
+        overworld = cls(size)
         for y in range(size[0]):
             for x in range(size[1]):
 
