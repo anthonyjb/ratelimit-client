@@ -6,6 +6,7 @@ import struct
 import uuid
 
 from game.settings import settings
+from game.utils.player import get_player_uid
 
 
 class BlockingClient:
@@ -32,7 +33,7 @@ class BlockingClient:
         r = self.send(
             'handshake',
             {
-                'node': settings.server.node or uuid.getnode(),
+                'node': get_player_uid(),
                 'password': settings.server.password
             }
         )

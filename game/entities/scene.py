@@ -142,8 +142,3 @@ class SceneTile:
                 self.character,
                 self.color_pair | curses.A_BOLD
             )
-
-# @@ ??
-# @@ Should we switch to render layers instead, so render terrain, scenary as
-# having them all in separate layers means we can potentially be more
-# efficient in how we render stuff.

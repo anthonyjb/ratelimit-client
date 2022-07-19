@@ -22,6 +22,8 @@ class Overworld(GameState):
 
         self.overworld = None
         self.party = None
+        self.last_frame_no = -1
+        self.replay_dt = 0
 
         # A viewport to render the game world within
         self.viewport = Viewport()
@@ -35,16 +37,23 @@ class Overworld(GameState):
     def input(self, char):
         super().input(char)
 
+        if not self.party.i_am_leader:
+            return
+
         if key_pressed(f'controls.enter_scene', char):
-            response = self.game.client.send('party:enter_scene')
-            if response['success']:
-                self.game_state_manager.pop(in_scene=True)
+            self.enter_scene()
+
+        for direction, key in enumerate(settings.controls.directions.keys()):
+            if key_pressed(f'controls.directions.{key}', char):
+                self.move_party(direction)
 
     def update(self, dt):
         super().update(dt)
 
         if self.paused:
             return
+
+        self.sync_frame(dt)
 
     def render(self):
 
@@ -90,6 +99,88 @@ class Overworld(GameState):
         ctx.addch(b, r - 1, '┛', corner_color)
 
         super().render()
+
+    # Non-lifecycle methods
+
+    def enter_scene(self):
+        """Attempt to enter the scene the party is currently located over"""
+        response = self.game.client.send('party:enter_scene')
+        if response['success']:
+            self.game_state_manager.pop(in_scene=True)
+
+    def move_party(self, direction):
+        """Move the party in the given direction"""
+        response = self.game.client.send('move', {'direction': direction})
+
+        # Immediately move the player as we control them
+        if 'position' in response:
+            self.party.x = response['position'][0]
+            self.party.y = response['position'][1]
+            self.my_turn = True
+
+    def move_to_frame_no(self, frame):
+        """Move to the given frame within the overworld"""
+
+        frame = self.game.frames[self.last_frame_no]
+
+        actor = frame.get('actor')
+        action = frame.get('action')
+        data = frame.get('data')
+
+        if actor == 'party':
+
+            if action == 'move':
+
+                # Move the party to the position they are in for this frame
+                self.party.x = data[1][0]
+                self.party.y = data[1][1]
+
+            elif frame.get('action') == 'enter_scene':
+
+                # Party has entered a scene, transition the game to the scene
+                # state.
+                self.game_state_manager.pop(in_scene=True)
+
+    def sync_frame(self, dt):
+        """Sync the """
+
+        if self.party.i_am_leader:
+
+            # If are the party leader then our party is already in the correct
+            # position (as we are the only one who can move it) so just sync
+            # the frame no.
+            self.last_frame_no = self.game.frame_no
+            return
+
+        # We are not the party leader and therefore the sync is passive and may
+        # involve catching up several frames.
+
+        if self.last_frame_no == -1:
+
+            # When the player first enters the overworld we always show the
+            # most recent frame (no catch up on entering the overworld).
+            self.last_frame_no = self.game.frame_no
+
+        max_frame_lag = settings.game.max_frame_lag
+        if self.last_frame_no < (self.game.frame_no - max_frame_lag):
+
+            # Don't allow the player to lag too far behind the current game
+            # frame.
+            self.last_frame_no = self.game.frame_no - max_frame_lag
+
+        if self.last_frame_no < self.game.frame_no:
+
+            # The player is currently behind the most recent game frame so
+            # replay past frames to catch up.
+            self.replay_dt += dt
+
+            if self.replay_dt > 1 / settings.game.replay_frame_rate:
+
+                # Increment the frame by one
+                self.last_frame_no += 1
+
+                # Apply the frame
+                self.move_to_frame_no(self.last_frame_no)
 
     # Bootstraps
 

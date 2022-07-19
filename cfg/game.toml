@@ -1,0 +1,9 @@
+
+# The maximum frames the player can be behind the most recent game frame,
+# higher than this number and the game will jump the player forward in time
+# skipping any frames outside of this limit.
+max_frame_lag = 10
+
+# The frame rate at which the client will replay game frames at when passively
+# observering.
+replay_frame_rate = 12
