@@ -1,21 +1,74 @@
 
 
-For any given state there are multiple things to call:
+@@ TODO
 
-- enter()
-- exit()
-- input(key) > process input from the user in the form of a key press
-- update(dt) > update the state based on the time that has ellapsed (unlikely to matter much here other than for basic animations)
-- render() > render the state to the screen
-
-
-
-The main UI will consist of 3 windows:
-
-    - Message (height 1, margin-bottom 1)
-    - Viewport (height max -2, margin-bottom 1)
-    - Stats (height 1)
+- move overworld to using the new frame format and remove concept of party
+  entity class from client.
+- [david] to implement world journal (remove player journals)
+- get basic player:fov in place (just return -1)
+- add landmark layer to scenes
 
 
-There will be other UIs such as the inventory, help screen, game set up screens,
-etc.
+- define rules for sprite paths
+
+    @@ We decided we need to ideally limit to 3 levels and to take care not to
+       add too many variations at each step (especially at 3).
+
+    > dynamic length paths
+
+    - base class
+        - Tree
+    - state modifier
+        - Damaged
+    - species class
+        - Oak
+
+    - Door
+    - Closed
+    - Damaged
+    - Wooden
+
+    Door, Closed, Undamaged, Wooden [
+    Door, Open ' '
+
+    - base class
+        - sword
+    - sword type
+        - short
+    - Style
+        - Dwarven
+    - Aura
+        - Magical
+    - state modifier
+        - Broken
+
+    ) | -
+
+`player:fov`
+
+> returns an array of visible tile coordinates or -1 if infinite visibility
+  (e.g above ground).
+
+[0, 1, 5, ...]
+
+
+frame format
+
+{
+    'actor': 'npc',
+    'action': 'move',
+    'scene_changes': {
+        22: [[1,0,0], -1, -1, -1],
+        23: [[1,0,0], -1, -1, [1, 0, 1]]
+    }
+}
+
+{
+    'actor': 'npc',
+    'action': 'dies',
+    'summary': 'Green goblin dies from a critical hit',
+    'explanation': '+2 D20',
+    'scene_changes': {
+        23: [[1,0,0], -1, -1, -1]
+    }
+}
