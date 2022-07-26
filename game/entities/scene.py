@@ -24,7 +24,8 @@ class Scene:
 
         for tile_index, sprites in scene_changes.items():
             terrain, scenary, item, creature = sprites
-            tile = overworld.get_tile(tile_index)
+
+            tile = self.get_tile(int(tile_index))
 
             if terrain == -1:
                 tile.terrain = None

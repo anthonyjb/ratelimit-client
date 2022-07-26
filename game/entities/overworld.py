@@ -22,9 +22,13 @@ class Overworld:
     def apply_scene_changes(self, scene_changes):
         """Apply a set of scene changes to the overworld"""
 
+        # import logging
+        # logging.info(str(scene_changes))
+
         for tile_index, sprites in scene_changes.items():
             biome, landmark, party = sprites
-            tile = overworld.get_tile(tile_index)
+
+            tile = self.get_tile(int(tile_index))
 
             if biome == -1:
                 tile.biome = None
@@ -106,11 +110,11 @@ class OverworldTile:
     A tile within the game's overworld.
     """
 
-    def __init__(self, biome=None, landmark=None, creature=None):
+    def __init__(self, biome=None, landmark=None, party=None):
 
         self.landmark = landmark
         self.biome = biome
-        self.creature = creature
+        self.party = party
 
     @property
     def character(self):

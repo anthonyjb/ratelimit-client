@@ -208,8 +208,6 @@ class GameLoop:
                 {'frame_no': self._client_frame_no + 1}
             ))['frames']
 
-            logging.info(str(new_frames))
-
             self._frames.update({f[0]: f[1] for f in new_frames})
             self._client_frame_no = self._server_frame_no
 

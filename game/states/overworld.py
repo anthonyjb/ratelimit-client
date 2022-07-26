@@ -155,6 +155,7 @@ class Overworld(GameState):
             # position (as we are the only one who can move it) so just sync
             # the frame no.
             self.last_frame_no = self.game.frame_no
+            self.move_to_frame_no(self.last_frame_no)
             return
 
         # We are not the party leader and therefore the sync is passive and may

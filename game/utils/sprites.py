@@ -34,6 +34,7 @@ class SpriteSheet:
     In the overworld:
         - biomes
         - landmarks
+        - parties
 
     In scenes:
         - terrain
@@ -78,6 +79,7 @@ class SpriteSheet:
             # Overworld
             'biomes': {},
             'landmarks': {},
+            'parties': {},
 
             # Scenes
             'terrain': {},
