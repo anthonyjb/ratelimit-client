@@ -77,7 +77,7 @@ class Overworld(GameState):
             ctx,
             viewport_rect[0:2],
             viewport_rect[2:],
-            self.overworld.get_offset([max_y - 8, max_x - 4])
+            self.overworld.get_offset(self.party.yx, [max_y - 8, max_x - 4])
         )
 
         # Draw the viewport border
@@ -126,14 +126,19 @@ class Overworld(GameState):
         actor = frame.get('actor')
         action = frame.get('action')
         data = frame.get('data')
+        scene_changes = frame.get('scene_changes')
 
         if actor == 'party':
 
             if action == 'move':
 
                 # Move the party to the position they are in for this frame
-                self.party.x = data[1][0]
-                self.party.y = data[1][1]
+                self.party.x = data['position'][0]
+                self.party.y = data['position'][1]
+
+                # Update the overworld with any scene changes
+                self.overworld.apply_scene_changes(scene_changes)
+                self.overworld.render(self.viewport)
 
             elif frame.get('action') == 'enter_scene':
 
@@ -166,7 +171,14 @@ class Overworld(GameState):
 
             # Don't allow the player to lag too far behind the current game
             # frame.
-            self.last_frame_no = self.game.frame_no - max_frame_lag
+
+            while self.last_frame_no < (self.game.frame_no - max_frame_lag):
+
+                # Increment the frame by one
+                self.last_frame_no += 1
+
+                # Apply the frame
+                self.move_to_frame_no(self.last_frame_no)
 
         if self.last_frame_no < self.game.frame_no:
 
@@ -196,5 +208,5 @@ class Overworld(GameState):
 
         self.overworld.party = self.party
 
-        # Render static elements within the overworld to the viewport
-        self.overworld.render_static(self.viewport)
+        # Render the overworld to the viewport
+        self.overworld.render(self.viewport)

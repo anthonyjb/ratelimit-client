@@ -54,7 +54,7 @@ class Scene(GameState):
             ctx,
             viewport_rect[0:2],
             viewport_rect[2:],
-            self.scene.get_offset([max_y - 8, max_x - 4])
+            self.scene.get_offset(self.player.yx, [max_y - 8, max_x - 4])
         )
 
         # Draw the viewport border
@@ -85,9 +85,8 @@ class Scene(GameState):
             self.game.client.send('scene:read')
         )
 
-        # self.player = ...
-
-        self.scene.player = entities.player.Player()
+        # @@ TODO: Fetch from server
+        self.player = entities.player.Player()
 
 # @@ Create a UI component for the viewport border as this code is
 # reported.

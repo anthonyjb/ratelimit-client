@@ -24,8 +24,12 @@ short_sword = ['(', 'black_coral']
 [landmarks]
 cave = ['O', 'black_coral']
 
+[parties]
+player = ['@', 'snow']
+
 [terrain]
 earth = ['.', 'coyote']
 stone = ['.', 'black_coral']
 grass = ['.', 'hunter_green']
 grass__long = ['\u002C', 'hunter_green']
+

@@ -1,7 +1,5 @@
 import curses
 
-from game.settings import settings
-from game.utils.colors import Colors
 from game.utils.player import get_player_uid
 
 
@@ -18,27 +16,12 @@ class Party:
         self.y = 0
 
     @property
-    def char(self):
-        return '@'
-
-    @property
-    def color_pair(self):
-        return Colors.pair('snow', settings.ui.bg_color)
-
-    @property
     def i_am_leader(self):
         return get_player_uid() == self.leader
 
-    def render(self, viewport):
-        """Render the party"""
-
-        viewport.blit(
-            self.y,
-            self.x,
-            1,
-            self.char,
-            self.color_pair | curses.A_BOLD
-        )
+    @property
+    def yx(self):
+        return [self.y, self.x]
 
     @classmethod
     def from_json_type(self, json_type):

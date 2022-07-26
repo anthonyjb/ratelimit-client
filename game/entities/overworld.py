@@ -15,24 +15,43 @@ class Overworld:
         self._size = size
         self._tiles = [OverworldTile() for i in range(size[0] * size[1])]
 
-        # The player party
-        self.party = None
-
     @property
     def size(self):
         return list(self._size)
 
-    def get_offset(self, size):
+    def apply_scene_changes(self, scene_changes):
+        """Apply a set of scene changes to the overworld"""
+
+        for tile_index, sprites in scene_changes.items():
+            biome, landmark, party = sprites
+            tile = overworld.get_tile(tile_index)
+
+            if biome == -1:
+                tile.biome = None
+            else:
+                tile.biome = tuple(biome)
+
+            if landmark == -1:
+                tile.landmark = None
+            else:
+                tile.landmark = tuple(landmark)
+
+            if party == -1:
+                tile.party = None
+            else:
+                tile.party = tuple(party)
+
+    def get_offset(self, yx, size):
         """
-        Return the offset to render at so that the party is in view of the
-        given viewport.
+        Return the offset to render at so that the yx coordinate (e.g the
+        player/party position) is in view of the given viewport.
         """
 
         h = size[0]
         w = size[1]
 
-        y = self.party.y - round(h / 2)
-        x = self.party.x - round(w / 2)
+        y = yx[0] - round(h / 2)
+        x = yx[1] - round(w / 2)
 
         y = max(0, min(y, self.size[0] - h))
         x = max(0, min(x, self.size[1] - w))
@@ -47,16 +66,6 @@ class Overworld:
 
     def render(self, viewport):
         """Render the overworld"""
-
-        self.party.render(viewport)
-
-    def render_static(self, viewport):
-        """
-        Render static elements within the overworld.
-
-        The overworld doesn't change in appearance so we can render it into the
-        viewport just once.
-        """
 
         h = self.size[0]
         w = self.size[1]
@@ -77,7 +86,7 @@ class Overworld:
             for x in range(size[1]):
 
                 tile_index = y * size[1] + x
-                biome, landmark = tiles[tile_index]
+                biome, landmark, party = tiles[tile_index]
                 tile = overworld.get_tile(tile_index)
 
                 if biome != -1:
@@ -85,6 +94,9 @@ class Overworld:
 
                 if landmark != -1:
                     tile.landmark = tuple(landmark)
+
+                if party != -1:
+                    tile.party = tuple(party)
 
         return overworld
 
@@ -94,14 +106,18 @@ class OverworldTile:
     A tile within the game's overworld.
     """
 
-    def __init__(self, biome=None, landmark=None):
+    def __init__(self, biome=None, landmark=None, creature=None):
 
         self.landmark = landmark
         self.biome = biome
+        self.creature = creature
 
     @property
     def character(self):
         sprites = SpriteSheet.singleton()
+
+        if self.party:
+            return sprites.get('parties', self.party).character
 
         if self.landmark:
             return sprites.get('landmarks', self.landmark).character
@@ -112,6 +128,9 @@ class OverworldTile:
     @property
     def color_pair(self):
         sprites = SpriteSheet.singleton()
+
+        if self.party:
+            return sprites.get('parties', self.party).color_pair
 
         if self.landmark:
             return sprites.get('landmarks', self.landmark).color_pair

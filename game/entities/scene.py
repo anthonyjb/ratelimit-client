@@ -15,24 +15,48 @@ class Scene:
         self._size = size
         self._tiles = [SceneTile() for i in range(size[0] * size[1])]
 
-        # The player
-        self.player = None
-
     @property
     def size(self):
         return list(self._size)
 
-    def get_offset(self, size):
+    def apply_scene_changes(self, scene_changes):
+        """Apply a set of scene changes to the overworld"""
+
+        for tile_index, sprites in scene_changes.items():
+            terrain, scenary, item, creature = sprites
+            tile = overworld.get_tile(tile_index)
+
+            if terrain == -1:
+                tile.terrain = None
+            else:
+                tile.terrain = tuple(terrain)
+
+            if scenary == -1:
+                tile.scenary = None
+            else:
+                tile.scenary = tuple(scenary)
+
+            if item == -1:
+                tile.item = None
+            else:
+                tile.item = tuple(item)
+
+            if creature == -1:
+                tile.creature = None
+            else:
+                tile.creature = tuple(creature)
+
+    def get_offset(self, yx, size):
         """
-        Return the offset to render at so that the player is in view of the
-        given viewport.
+        Return the offset to render at so that the yx coordinate (e.g the
+        player/party position) is in view of the given viewport.
         """
 
         h = size[0]
         w = size[1]
 
-        y = self.player.y - round(h / 2)
-        x = self.player.x - round(w / 2)
+        y = yx[0] - round(h / 2)
+        x = yx[1] - round(w / 2)
 
         y = max(0, min(y, self.size[0] - h))
         x = max(0, min(x, self.size[1] - w))
@@ -54,8 +78,6 @@ class Scene:
         for y in range(h):
             for x in range(w):
                 self._tiles[y * w + x].render(viewport, y, x)
-
-        self.player.render(viewport)
 
     @classmethod
     def from_json_type(cls, json_type):
