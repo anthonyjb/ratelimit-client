@@ -22,9 +22,6 @@ class Overworld:
     def apply_scene_changes(self, scene_changes):
         """Apply a set of scene changes to the overworld"""
 
-        # import logging
-        # logging.info(str(scene_changes))
-
         for tile_index, sprites in scene_changes.items():
             biome, landmark, party = sprites
 

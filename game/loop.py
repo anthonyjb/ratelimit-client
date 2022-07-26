@@ -50,6 +50,10 @@ class GameLoop:
         # A table of frames received from the server
         self._frames = {}
 
+        # Flag indicating if peek should be forced to execute ahead of the
+        # standard frame delay.
+        self._force_peek = False
+
     @property
     def client(self):
         return self._blocking_client
@@ -179,11 +183,16 @@ class GameLoop:
 
                     if (
                         not peek_task or peek_task.done()
-                        and last_peek_time > 1
+                        and (
+                            last_peek_time > 1
+                            or self._force_peek
+                        )
                     ):
+
                         # Peek
                         peek_task = asyncio.ensure_future(self.peek())
                         last_peek_time = time.time()
+                        self._force_peek = False
 
                 # NOTE: Must be the last lines in the loop
                 self._ui_busy.render(self.main_window)
@@ -233,6 +242,9 @@ class GameLoop:
         curses.nocbreak()
         curses.echo()
         curses.endwin()
+
+    def force_peek(self):
+        self._force_peek = True
 
     def hide_bootstrap(self):
         """

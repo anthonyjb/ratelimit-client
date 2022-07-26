@@ -116,7 +116,7 @@ class Overworld(GameState):
         if 'position' in response:
             self.party.x = response['position'][0]
             self.party.y = response['position'][1]
-            self.my_turn = True
+            self.overworld.apply_scene_changes(response['scene_changes'])
 
     def move_to_frame_no(self, frame):
         """Move to the given frame within the overworld"""
@@ -155,7 +155,6 @@ class Overworld(GameState):
             # position (as we are the only one who can move it) so just sync
             # the frame no.
             self.last_frame_no = self.game.frame_no
-            self.move_to_frame_no(self.last_frame_no)
             return
 
         # We are not the party leader and therefore the sync is passive and may
