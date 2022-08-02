@@ -47,8 +47,6 @@ class Scene(GameState):
         if not self.is_my_turn:
             return
 
-        logging.info(str(char))
-
         if key_pressed(f'controls.end_turn', char):
             self.end_turn()
 
