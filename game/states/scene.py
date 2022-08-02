@@ -85,8 +85,9 @@ class Scene(GameState):
             self.game.client.send('scene:read')
         )
 
-        # @@ TODO: Fetch from server
-        self.player = entities.player.Player()
+        self.player = entities.player.Player.from_json_type(
+            self.game.client.send('player:read')
+        )
 
 # @@ Create a UI component for the viewport border as this code is
 # reported.

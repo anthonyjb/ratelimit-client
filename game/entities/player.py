@@ -14,23 +14,8 @@ class Player:
         self.y = 0
 
     @property
-    def char(self):
-        return '@'
-
-    @property
-    def color_pair(self):
-        return Colors.pair('snow', settings.ui.bg_color)
-
-    def render(self, viewport):
-        """Render the party"""
-
-        viewport.blit(
-            self.y,
-            self.x,
-            1,
-            self.char,
-            self.color_pair | curses.A_BOLD
-        )
+    def yx(self):
+        return [self.y, self.x]
 
     @classmethod
     def from_json_type(self, json_type):

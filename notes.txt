@@ -2,11 +2,8 @@
 
 @@ TODO
 
-- move overworld to using the new frame format and remove concept of party
-  entity class from client.
-- [david] to implement world journal (remove player journals)
 - get basic player:fov in place (just return -1)
-- add landmark layer to scenes
+- add scene_landmark layer to scenes
 
 
 - define rules for sprite paths
