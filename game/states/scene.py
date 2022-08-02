@@ -5,6 +5,8 @@ from game import entities
 from game.settings import settings
 from game.states.state import GameState
 from game.utils.colors import Colors
+from game.utils.input import key_pressed
+from game.utils.player import get_player_uid
 from game.utils.rendering import Viewport
 
 
@@ -17,11 +19,18 @@ class Scene(GameState):
 
     ID = 'scene'
 
+    @property
+    def is_my_turn(self):
+        return self.active_player == get_player_uid()
+
     def enter(self, **kw):
         super().enter(**kw)
 
-        self.scene = None
+        self.active_player = kw['active_player']
+        self.last_frame_no = self.game.frame_no
         self.player = None
+        self.replay_dt = 0
+        self.scene = None
 
         # A viewport to render the game world within
         self.viewport = Viewport()
@@ -31,6 +40,29 @@ class Scene(GameState):
             'Fetching scene...',
             lambda: self.fetch_scene()
         )
+
+    def input(self, char):
+        super().input(char)
+
+        if not self.is_my_turn:
+            return
+
+        logging.info(str(char))
+
+        if key_pressed(f'controls.end_turn', char):
+            self.end_turn()
+
+        for direction, key in enumerate(settings.controls.directions.keys()):
+            if key_pressed(f'controls.directions.{key}', char):
+                self.move_player(direction)
+
+    def update(self, dt):
+        super().update(dt)
+
+        if self.paused:
+            return
+
+        self.sync_frame(dt)
 
     def render(self):
 
@@ -76,6 +108,74 @@ class Scene(GameState):
         ctx.addch(b, r - 1, '┛', corner_color)
 
         super().render()
+
+    # Non-lifecycle methods
+
+    def end_turn(self):
+        """End the players turn"""
+        self.game.client.send('player:end_turn')
+
+    def move_player(self, direction):
+        """Move the player in the given direction"""
+        self.game.client.send('move', {'direction': direction})
+
+    def move_to_frame_no(self, frame):
+        """Move to the given frame within the scene"""
+
+        frame = self.game.frames[self.last_frame_no]
+
+        actor = frame.get('actor')
+        action = frame.get('action')
+        data = frame.get('data')
+        scene_changes = frame.get('scene_changes')
+
+        self.active_player = data['active_player']
+
+        if self.is_my_turn:
+
+            if actor == 'party':
+
+                if action == 'move':
+
+                    # Move the player to the position they are in for this frame
+                    self.player.x = data['position'][0]
+                    self.player.y = data['position'][1]
+
+        # Update the scene with any scene changes
+        if scene_changes:
+            self.scene.apply_scene_changes(scene_changes)
+            self.scene.render(self.viewport)
+
+    def sync_frame(self, dt):
+        """Sync view to the current frame"""
+
+        max_frame_lag = settings.game.max_frame_lag
+        if self.last_frame_no < (self.game.frame_no - max_frame_lag):
+
+            # Don't allow the player to lag too far behind the current game
+            # frame.
+
+            while self.last_frame_no < (self.game.frame_no - max_frame_lag):
+
+                # Increment the frame by one
+                self.last_frame_no += 1
+
+                # Apply the frame
+                self.move_to_frame_no(self.last_frame_no)
+
+        if self.last_frame_no < self.game.frame_no:
+
+            # The player is currently behind the most recent game frame so
+            # replay past frames to catch up.
+            self.replay_dt += dt
+
+            if self.replay_dt > 1 / settings.game.replay_frame_rate:
+
+                # Increment the frame by one
+                self.last_frame_no += 1
+
+                # Apply the frame
+                self.move_to_frame_no(self.last_frame_no)
 
     # Bootstraps
 

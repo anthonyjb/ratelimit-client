@@ -105,8 +105,7 @@ class Overworld(GameState):
     def enter_scene(self):
         """Attempt to enter the scene the party is currently located over"""
         response = self.game.client.send('party:enter_scene')
-        if response['success']:
-            self.game_state_manager.pop(in_scene=True)
+        self.party.leader = None
 
     def move_party(self, direction):
         """Move the party in the given direction"""
@@ -144,16 +143,19 @@ class Overworld(GameState):
 
                 # Party has entered a scene, transition the game to the scene
                 # state.
-                self.game_state_manager.pop(in_scene=True)
+                self.game_state_manager.pop(
+                    active_player=data['active_player'],
+                    in_scene=True
+                )
 
     def sync_frame(self, dt):
-        """Sync the """
+        """Sync view to the current frame"""
 
         if self.party.i_am_leader:
 
-            # If are the party leader then our party is already in the correct
-            # position (as we are the only one who can move it) so just sync
-            # the frame no.
+            # If we are the party leader then our party is already in the
+            # correct position (as we are the only one who can move it) so
+            # just sync the frame no.
             self.last_frame_no = self.game.frame_no
             return
 

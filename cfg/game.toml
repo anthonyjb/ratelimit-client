@@ -6,4 +6,4 @@ max_frame_lag = 10
 
 # The frame rate at which the client will replay game frames at when passively
 # observering.
-replay_frame_rate = 12
+replay_frame_rate = 30

@@ -24,11 +24,15 @@ class InGame(GameState):
         super().enter(**kw)
 
         self.in_scene = kw.get('in_scene', False)
+        if self.in_scene:
+            self.active_player = kw['active_player']
 
     def resume(self, **kw):
         super().resume(**kw)
 
         self.in_scene = kw.get('in_scene', False)
+        if self.in_scene:
+            self.active_player = kw['active_player']
 
     def leave(self):
         super().leave()
@@ -43,7 +47,10 @@ class InGame(GameState):
             return
 
         if self.in_scene:
-            self.game_state_manager.push('scene')
+            self.game_state_manager.push(
+                'scene',
+                active_player=self.active_player
+            )
 
         else:
             self.game_state_manager.push('overworld')

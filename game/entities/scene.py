@@ -1,4 +1,5 @@
 import curses
+import logging
 import math
 
 from game.settings import settings
@@ -38,14 +39,14 @@ class Scene:
                 tile.scenary = tuple(scenary)
 
             if item == -1:
-                tile.item = None
+                tile.items = None
             else:
-                tile.item = tuple(item)
+                tile.items = tuple(item)
 
             if creature == -1:
-                tile.creature = None
+                tile.creatures = None
             else:
-                tile.creature = tuple(creature)
+                tile.creatures = tuple(creature)
 
     def get_offset(self, yx, size):
         """
