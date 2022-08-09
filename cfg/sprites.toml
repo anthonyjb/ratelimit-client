@@ -29,8 +29,8 @@ cave = ['O', 'black_coral']
 player = ['@', 'snow']
 
 [terrain]
-earth = ['.', 'coyote']
-stone = ['.', 'black_coral']
-grass = ['.', 'hunter_green']
-grass__long = [':', 'hunter_green']
+earth = ['~', 'coyote']
+stone = ['*', 'black_coral']
+grass = ["'", 'hunter_green']
+grass__long = ['"', 'hunter_green']
 
