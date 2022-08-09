@@ -1,3 +1,4 @@
+import logging
 
 __all__ = [
     'Viewport',

@@ -4,6 +4,7 @@ import logging
 from game import entities
 from game.settings import settings
 from game.states.state import GameState
+from game.ui.border import Border
 from game.utils.colors import Colors
 from game.utils.input import key_pressed
 from game.utils.rendering import Viewport
@@ -27,6 +28,12 @@ class Overworld(GameState):
 
         # A viewport to render the game world within
         self.viewport = Viewport()
+
+        # Set up a border for the viewport
+        self.border = Border()
+        self.border.right = 0
+        self.border.top = 1
+        self.ui_root.add_child(self.border)
 
         # Bootstraps
         self.game.bootstrap(
@@ -80,23 +87,8 @@ class Overworld(GameState):
             self.overworld.get_offset(self.party.yx, [max_y - 8, max_x - 4])
         )
 
-        # Draw the viewport border
-        t = 1
-        l = 0
-        b = viewport_rect[2] + 3
-        r = viewport_rect[3] + 2
-
-        border_color = Colors.pair('coyote', settings.ui.bg_color)
-        ctx.hline(t, l, curses.ACS_HLINE, r, border_color)
-        ctx.hline(b, l, curses.ACS_HLINE, r, border_color)
-        ctx.vline(t, l, curses.ACS_VLINE, b, border_color)
-        ctx.vline(t, r - 1, curses.ACS_VLINE, b, border_color)
-
-        corner_color = Colors.pair('independence', settings.ui.bg_color)
-        ctx.addch(t, l, '┏', corner_color)
-        ctx.addch(t, r - 1, '┓', corner_color)
-        ctx.addch(b, l, '┗', corner_color)
-        ctx.addch(b, r - 1, '┛', corner_color)
+        # Update the size of the border to wrap the viewport
+        self.border.height = viewport_rect[2] + 2
 
         super().render()
 

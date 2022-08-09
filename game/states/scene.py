@@ -4,6 +4,8 @@ import logging
 from game import entities
 from game.settings import settings
 from game.states.state import GameState
+from game.ui.border import Border
+from game.ui.stats import StatBar, Stat
 from game.utils.colors import Colors
 from game.utils.input import key_pressed
 from game.utils.player import get_player_uid
@@ -35,6 +37,23 @@ class Scene(GameState):
         # A viewport to render the game world within
         self.viewport = Viewport()
 
+        # Set up a border for the viewport
+        self.border = Border()
+        self.border.right = 0
+        self.border.top = 1
+        self.ui_root.add_child(self.border)
+
+        # Set up a stat bar
+        self.stat_bar = StatBar()
+        self.ui_root.add_child(self.stat_bar)
+
+        self.stats = {
+            'action_points': Stat((0, False), 'AP')
+        }
+
+        for stat in self.stats.values():
+            self.stat_bar.add_child(stat)
+
         # Bootstraps
         self.game.bootstrap(
             'Fetching scene...',
@@ -59,6 +78,9 @@ class Scene(GameState):
 
         if self.paused:
             return
+
+        # Update the stats
+        self.stats['action_points'].value = (0, self.is_my_turn)
 
         self.sync_frame(dt)
 
@@ -87,23 +109,11 @@ class Scene(GameState):
             self.scene.get_offset(self.player.yx, [max_y - 8, max_x - 4])
         )
 
-        # Draw the viewport border
-        t = 1
-        l = 0
-        b = viewport_rect[2] + 3
-        r = viewport_rect[3] + 2
+        # Update the height of the border to wrap the viewport
+        self.border.height = viewport_rect[2] + 2
 
-        border_color = Colors.pair('coyote', settings.ui.bg_color)
-        ctx.hline(t, l, curses.ACS_HLINE, r, border_color)
-        ctx.hline(b, l, curses.ACS_HLINE, r, border_color)
-        ctx.vline(t, l, curses.ACS_VLINE, b, border_color)
-        ctx.vline(t, r - 1, curses.ACS_VLINE, b, border_color)
-
-        corner_color = Colors.pair('independence', settings.ui.bg_color)
-        ctx.addch(t, l, '┏', corner_color)
-        ctx.addch(t, r - 1, '┓', corner_color)
-        ctx.addch(b, l, '┗', corner_color)
-        ctx.addch(b, r - 1, '┛', corner_color)
+        # Update the position of the start bar to be under the viewport
+        self.stat_bar.top = viewport_rect[2] + 3
 
         super().render()
 
@@ -131,7 +141,7 @@ class Scene(GameState):
 
         if self.is_my_turn:
 
-            if actor == 'party':
+            if actor == 'player':
 
                 if action == 'move':
 
@@ -187,5 +197,10 @@ class Scene(GameState):
             self.game.client.send('player:read')
         )
 
-# @@ Create a UI component for the viewport border as this code is
-# reported.
+# @@
+#
+# - Show action points remaining
+# - Indicator of if it's my turn
+#
+#
+

@@ -11,6 +11,7 @@ woods__evergreen = ['&', 'dark_green']
 woods__evergreen__ancient = ['%', 'dark_green']
 
 [creatures]
+dwarf = ['@', 'snow']
 goblin = ['g', 'indigo_dye']
 rat = ['r', 'dark_liver_horses']
 
@@ -31,5 +32,5 @@ player = ['@', 'snow']
 earth = ['.', 'coyote']
 stone = ['.', 'black_coral']
 grass = ['.', 'hunter_green']
-grass__long = ['\u002C', 'hunter_green']
+grass__long = [':', 'hunter_green']
 

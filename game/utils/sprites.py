@@ -1,4 +1,6 @@
 
+import logging
+
 from game.settings import settings
 from game.utils.colors import Colors
 
