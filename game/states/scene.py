@@ -48,7 +48,12 @@ class Scene(GameState):
         self.ui_root.add_child(self.stat_bar)
 
         self.stats = {
-            'action_points': Stat((0, False), 'AP')
+            'name': Stat(('unknown', False)),
+            'action_points': Stat(
+                ('?', '?'),
+                'AP',
+                settings.ui.stats_bar.action_points_color
+            )
         }
 
         for stat in self.stats.values():
@@ -79,10 +84,9 @@ class Scene(GameState):
         if self.paused:
             return
 
-        # Update the stats
-        self.stats['action_points'].value = (0, self.is_my_turn)
-
         self.sync_frame(dt)
+
+        self.stats['action_points'].value = self.player.action_points
 
     def render(self):
 
@@ -115,6 +119,17 @@ class Scene(GameState):
         # Update the position of the start bar to be under the viewport
         self.stat_bar.top = viewport_rect[2] + 3
 
+        # Update the UI to show who's turn it currently is
+
+        if self.is_my_turn:
+            turn_str = 'My turn'
+        else:
+            # @@ This should be displaying the name of the player or entity
+            # who's turn it is.
+            turn_str = 'Not my turn'
+
+        ctx.addstr(0, max_x - len(turn_str), turn_str, curses.A_ITALIC)
+
         super().render()
 
     # Non-lifecycle methods
@@ -140,6 +155,8 @@ class Scene(GameState):
         self.active_player = data['active_player']
 
         if self.is_my_turn:
+
+            self.player.action_points = data['action_points']
 
             if actor == 'player':
 
@@ -197,10 +214,10 @@ class Scene(GameState):
             self.game.client.send('player:read')
         )
 
-# @@
-#
-# - Show action points remaining
-# - Indicator of if it's my turn
-#
-#
+        self.stats['name'].value = (
+            f'{self.player.name} '
+            f'({self.player.race} {self.player.profession})'
+        )
 
+
+# - Display when it's another entities turn

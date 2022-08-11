@@ -11,8 +11,9 @@ woods__evergreen = ['&', 'dark_green']
 woods__evergreen__ancient = ['%', 'dark_green']
 
 [creatures]
-dwarf = ['@', 'snow']
+dwarf = ['D', 'snow']
 goblin = ['g', 'indigo_dye']
+human = ['H', 'snow']
 rat = ['r', 'dark_liver_horses']
 
 [scenary]

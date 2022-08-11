@@ -267,7 +267,7 @@ class GameLoop:
 
         # Update the root UI size to that of the main window
         max_y, max_x = self.main_window.getmaxyx()
-        self._ui_root.width = max_x
+        self._ui_root.width = max_x + 1
         self._ui_root.height = max_y
 
 

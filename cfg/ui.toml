@@ -11,3 +11,6 @@ primary_button_color = 'rhythm'
     scroll_up_down = 34 # page down
     scroll_up_char = 33 # page up
     toggle_char = 96 # `
+
+[stats_bar]
+    action_points_color = 'steel_blue'
